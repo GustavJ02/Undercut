@@ -1,0 +1,20 @@
+# docker compose up -d --build      starts the game on http://<this machine>:8000
+# Change the left side of "ports" to use another port on the host (the right side stays 8000).
+services:
+  undercut:
+    build: .
+    image: undercut
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - undercut-data:/data              # race logs (/data/logs) and extra content packs (/data/mods)
+      - ./mods/local:/app/mods/local:ro  # packs kept out of git (local content packs): copy them into mods/local beside this file
+    environment:
+      UNDERCUT_MAX_ROOMS: "20"           # games at the same time
+      UNDERCUT_DEBRIEF_WORKERS: "2"      # cores a debrief may use, so a live race keeps its clock
+    cpus: 3.0                            # at most this many cores for the whole container
+    mem_limit: 2g
+
+volumes:
+  undercut-data:

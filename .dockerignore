@@ -1,0 +1,14 @@
+venv/
+**/node_modules/
+client/dist/
+logs/
+data/
+mods/local/
+tests/
+tools/
+packaging/
+docs/
+.git/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/

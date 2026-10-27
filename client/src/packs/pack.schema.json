@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "undercut-content-pack-1",
+  "title": "Undercut content pack manifest, schema 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "name", "version", "author", "licence", "kind"],
+  "properties": {
+    "schema": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]{3,40}$" },
+    "name": { "$ref": "#/$defs/text" },
+    "version": { "type": "string", "pattern": "^[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}$" },
+    "author": { "$ref": "#/$defs/text" },
+    "licence": { "$ref": "#/$defs/text" },
+    "kind": { "enum": ["base", "mod"] },
+    "teams": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/entityId" },
+      "additionalProperties": { "$ref": "#/$defs/team" },
+      "maxProperties": 64
+    },
+    "drivers": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/entityId" },
+      "additionalProperties": { "$ref": "#/$defs/driver" },
+      "maxProperties": 256
+    },
+    "archetypes": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/slug" },
+      "additionalProperties": { "$ref": "#/$defs/archetype" },
+      "maxProperties": 64
+    },
+    "sounds": {
+      "type": "object",
+      "propertyNames": { "enum": ["passBy", "ambience", "radioOpen", "radioClose", "gun"] },
+      "additionalProperties": { "$ref": "#/$defs/assetPath" }
+    },
+    "circuits": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/circuitId" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["displayName"],
+        "properties": { "displayName": { "$ref": "#/$defs/text" } }
+      },
+      "maxProperties": 64
+    },
+    "tracks": { "type": "object", "maxProperties": 0 }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "entityId": { "type": "string", "pattern": "^[A-Z0-9_]{2,12}$" },
+    "circuitId": { "type": "string", "pattern": "^[a-z0-9_]{2,24}$" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]{2,32}$" },
+    "colour": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "assetPath": { "type": "string", "maxLength": 200, "pattern": "^assets/[A-Za-z0-9_./-]+\\.(png|webp|svg|ogg|wav)$" },
+    "pattern": { "enum": ["solid", "stripe", "chevron", "split", "hoops", "diagonal", "dots"] },
+    "colours": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary", "accent"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/colour" },
+        "secondary": { "$ref": "#/$defs/colour" },
+        "accent": { "$ref": "#/$defs/colour" }
+      }
+    },
+    "team": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "short", "colours", "livery", "crew"],
+      "properties": {
+        "displayName": { "$ref": "#/$defs/text" },
+        "short": { "type": "string", "pattern": "^[A-Z0-9]{2,4}$" },
+        "colours": { "$ref": "#/$defs/colours" },
+        "livery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pattern"],
+          "properties": {
+            "pattern": { "$ref": "#/$defs/pattern" },
+            "image": { "$ref": "#/$defs/assetPath" }
+          }
+        },
+        "crew": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kit", "helmet"],
+          "properties": { "kit": { "$ref": "#/$defs/colour" }, "helmet": { "$ref": "#/$defs/colour" } }
+        },
+        "engineers": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/slug" } }
+      }
+    },
+    "driver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "number", "archetype", "helmet"],
+      "properties": {
+        "displayName": { "$ref": "#/$defs/text" },
+        "short": { "type": "string", "pattern": "^[A-Z0-9]{2,4}$" },
+        "number": { "type": "integer", "minimum": 1, "maximum": 99 },
+        "archetype": { "$ref": "#/$defs/slug" },
+        "helmet": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary", "secondary", "pattern"],
+          "properties": {
+            "primary": { "$ref": "#/$defs/colour" },
+            "secondary": { "$ref": "#/$defs/colour" },
+            "pattern": { "$ref": "#/$defs/pattern" }
+          }
+        }
+      }
+    },
+    "archetype": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "build", "height", "hair", "skin"],
+      "properties": {
+        "role": { "enum": ["crew", "engineer", "strategist", "driver"] },
+        "build": { "enum": ["lean", "medium", "broad"] },
+        "height": { "type": "number", "minimum": 0.9, "maximum": 1.1 },
+        "hair": { "enum": ["none", "short", "long", "curly", "cap", "tied"] },
+        "skin": { "$ref": "#/$defs/colour" }
+      }
+    }
+  }
+}

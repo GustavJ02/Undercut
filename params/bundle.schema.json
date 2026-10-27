@@ -1,0 +1,1124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "undercut/params/bundle.schema.json",
+  "title": "Undercut parameter bundle",
+  "description": "Aggregate fitted parameters only. No raw timing data and no per-lap records. Values that are not fitted are listed in `placeholders` by dotted path.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_version",
+    "source",
+    "placeholders",
+    "compounds",
+    "fuel_s_per_lap",
+    "lap_noise_s",
+    "passing",
+    "safety",
+    "start_compound_shares",
+    "transitions",
+    "stints",
+    "pit_stop",
+    "circuits",
+    "teams",
+    "traffic",
+    "start",
+    "tyre_sets",
+    "weekend_pace",
+    "incidents",
+    "stint_pace_sd_s",
+    "weather",
+    "team_orders",
+    "strategy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "bundle_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator",
+        "priors_races"
+      ],
+      "properties": {
+        "generator": {
+          "type": "string"
+        },
+        "priors_races": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of races the priors were fitted on."
+        }
+      }
+    },
+    "placeholders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "description": "Dotted paths of values that are assumptions, not fitted. Anything listed here must not be presented as fitted."
+    },
+    "compounds": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "enum": [
+          "SOFT",
+          "MEDIUM",
+          "HARD",
+          "INTERMEDIATE",
+          "WET"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/compound"
+      }
+    },
+    "temp_ref_c": {
+      "type": "number"
+    },
+    "fuel_s_per_lap": {
+      "type": "number",
+      "minimum": 0
+    },
+    "lap_noise_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "passing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "a",
+        "b",
+        "window_s"
+      ],
+      "properties": {
+        "a": {
+          "type": "number"
+        },
+        "b": {
+          "type": "number"
+        },
+        "window_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Gap to the car ahead within which a pass can be attempted."
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sc_rate_per_lap",
+        "vsc_rate_per_lap",
+        "sc_laps",
+        "vsc_laps",
+        "early_boost",
+        "sc_pit_ratio",
+        "vsc_pit_ratio",
+        "sc_lap_factor",
+        "vsc_lap_factor",
+        "sc_gap_s"
+      ],
+      "properties": {
+        "sc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "vsc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sc_laps": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "vsc_laps": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "early_boost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sc_pit_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "vsc_pit_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sc_lap_factor": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Lap time under the SC relative to green."
+        },
+        "vsc_lap_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "sc_gap_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Gap between cars once bunched behind the SC."
+        }
+      }
+    },
+    "start_compound_shares": {
+      "$ref": "#/$defs/compoundNumbers"
+    },
+    "transitions": {
+      "type": "object",
+      "description": "Counts of the next compound given the current one.",
+      "propertyNames": {
+        "enum": [
+          "SOFT",
+          "MEDIUM",
+          "HARD"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/compoundNumbers"
+      }
+    },
+    "stints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pooled",
+        "circuits"
+      ],
+      "properties": {
+        "pooled": {
+          "$ref": "#/$defs/survivalByCompound"
+        },
+        "circuits": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/survivalByCompound"
+          }
+        }
+      }
+    },
+    "pit_stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stationary_mean_s",
+        "stationary_sd_s",
+        "slow_stop_prob",
+        "slow_stop_extra_s",
+        "error_prob",
+        "error_extra_s"
+      ],
+      "properties": {
+        "stationary_mean_s": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "stationary_sd_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "slow_stop_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "slow_stop_extra_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "error_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "error_extra_s": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "circuits": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/circuit"
+      }
+    },
+    "teams": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/team"
+      },
+      "description": "Team and driver names. Keep names in this section only; screens take names from the active content pack."
+    },
+    "traffic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "window_s",
+        "loss_s",
+        "min_gap_s"
+      ],
+      "description": "Dirty air: a car within window_s behind another loses up to loss_s per lap, linearly with proximity. The fitted lap noise already contains traffic, so this slightly double counts (known approximation).",
+      "properties": {
+        "window_s": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "loss_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "min_gap_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Closest a car follows another, in seconds."
+        }
+      }
+    },
+    "start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grid_gap_s",
+        "qualifying_noise_s",
+        "qualifying_front_share",
+        "reaction_mean_s",
+        "reaction_sd_s",
+        "launch_tau_s",
+        "launch_sd",
+        "first_lap_logit_shift",
+        "launch_front_share"
+      ],
+      "properties": {
+        "grid_gap_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Time gap between consecutive grid slots."
+        },
+        "qualifying_noise_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "SD of pace noise when generating a grid, for the slowest car."
+        },
+        "qualifying_front_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Qualifying noise of the fastest car as a share of qualifying_noise_s, rising linearly to the full value for the slowest: the front of a grid reflects pace better than the back."
+        },
+        "reaction_mean_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean time from lights out to a car moving."
+        },
+        "reaction_sd_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "SD of that reaction time."
+        },
+        "launch_tau_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Time constant of the launch: speed rises as 1 - exp(-t / tau) from standstill. 0 = no ramp."
+        },
+        "launch_sd": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Relative SD of the launch time constant between cars."
+        },
+        "first_lap_logit_shift": {
+          "type": "number",
+          "description": "Added to the pass logistic's intercept during the first lap (cars bunched, DRS off, risk taken)."
+        },
+        "launch_front_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Start variability (reaction and launch) of the pole car as a share of the full value, rising linearly to the full value at the back of the grid: the front rows get away cleanly, the back concertinas."
+        }
+      }
+    },
+    "tyre_sets": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "SOFT",
+          "MEDIUM",
+          "HARD",
+          "INTERMEDIATE",
+          "WET"
+        ]
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "description": "Sets available per compound at the start of the race."
+    },
+    "weekend_pace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "team_sd_s",
+        "driver_sd_s"
+      ],
+      "description": "SD of a car's pace on the day around its rating: a shared team part and a driver part. An upper bound: it includes development between races.",
+      "properties": {
+        "team_sd_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "driver_sd_s": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "incidents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retire_per_car_lap",
+        "mechanical_per_car_lap",
+        "mechanical_on_track_share",
+        "collision",
+        "hazard_response",
+        "red_flag"
+      ],
+      "description": "Retirements, contacts and the race-control response to a car stopped on track. The feed names no causes, so the split between causes and the response mapping are placeholders; the totals are fitted or calibrated.",
+      "properties": {
+        "retire_per_car_lap": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total retirement rate per car and lap in dry races: calibration target."
+        },
+        "mechanical_per_car_lap": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Retirement rate not caused by contact: total less the expected contact retirements."
+        },
+        "mechanical_on_track_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Share of mechanical failures that stop the car on track (a hazard); the rest happen in the pits."
+        },
+        "collision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rate_per_exposure_s",
+            "window_s",
+            "first_lap_boost",
+            "outcome",
+            "damage_loss_s",
+            "contacts_per_race"
+          ],
+          "properties": {
+            "rate_per_exposure_s": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Contact probability per second a car spends within window_s behind another, calibrated so the simulated contacts per race match contacts_per_race."
+            },
+            "window_s": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "first_lap_boost": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Multiplier on the contact rate in laps 1-2."
+            },
+            "outcome": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "damage",
+                "retire"
+              ],
+              "properties": {
+                "damage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "retire": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "description": "Per car in a contact; the rest are undamaged."
+            },
+            "damage_loss_s": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pace lost per lap after contact damage."
+            },
+            "contacts_per_race": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Steward notes of an incident involving two cars, per dry race: a soft label, not all are contact."
+            }
+          }
+        },
+        "hazard_response": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sc",
+            "vsc",
+            "red"
+          ],
+          "properties": {
+            "sc": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "vsc": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "red": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "description": "Given a car stopped on track: probability of a red flag, a safety car and a VSC; the rest is a local yellow."
+        },
+        "red_flag": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hold_s",
+            "durations_min",
+            "per_dry_race"
+          ],
+          "description": "hold_s: how long the cars stand before the restart in the simulation (the window for free tyre changes); durations_min: observed stoppage lengths, reported for context.",
+          "properties": {
+            "hold_s": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "durations_min": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "minItems": 1
+            },
+            "per_dry_race": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Red flags per dry race: the calibration target."
+            }
+          }
+        }
+      }
+    },
+    "stint_pace_sd_s": {
+      "type": "number",
+      "minimum": 0,
+      "description": "SD of a driver's pace from one stint to the next within a race (lap noise removed), for dry races."
+    },
+    "weather": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario_probs",
+        "rain_durations_laps",
+        "rain_start_share",
+        "forecast",
+        "wet_rate_per_lap",
+        "dry_rate_per_lap",
+        "dry_track_wear",
+        "lap_delta",
+        "multipliers"
+      ],
+      "description": "The weather model (engine/weather.py). Frequencies, durations, forecast reliability and the safety-car, VSC and red-flag multipliers are set by hand; the lap-time tables, wetting and drying rates are placeholders anchored on a few observed points.",
+      "properties": {
+        "scenario_probs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dry",
+            "wet_start",
+            "rain_during"
+          ],
+          "properties": {
+            "dry": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "wet_start": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "rain_during": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "rain_durations_laps": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 1
+        },
+        "rain_start_share": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 1,
+          "description": "Observed starts of rain during a race, as a share of its length."
+        },
+        "forecast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "given_rain",
+            "given_dry"
+          ],
+          "description": "Probability of each published rain-chance bucket (percent) in races that did, and did not, see rain.",
+          "properties": {
+            "given_rain": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "given_dry": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "wet_rate_per_lap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "light",
+            "heavy"
+          ],
+          "properties": {
+            "light": {
+              "type": "number",
+              "minimum": 0
+            },
+            "heavy": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "dry_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dry_track_wear": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Extra wear of wet-weather tyres on a drying track, as a multiple of their normal wear at zero wetness."
+        },
+        "lap_delta": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "SOFT",
+              "MEDIUM",
+              "HARD",
+              "INTERMEDIATE",
+              "WET"
+            ]
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 5,
+            "maxItems": 5
+          },
+          "description": "Seconds lost per lap by each compound at wetness 0, 0.25, 0.5, 0.75 and 1 (track effect included)."
+        },
+        "multipliers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sc",
+            "vsc",
+            "red",
+            "contact"
+          ],
+          "description": "Incident rates on a fully wet track against a dry one.",
+          "properties": {
+            "sc": {
+              "type": "number",
+              "minimum": 1
+            },
+            "vsc": {
+              "type": "number",
+              "minimum": 1
+            },
+            "red": {
+              "type": "number",
+              "minimum": 1
+            },
+            "contact": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "team_orders": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "window_s",
+        "lift_s_per_lap",
+        "corner_halfwidth",
+        "straight_min_gap",
+        "delay_prob",
+        "argue_prob",
+        "refuse_share",
+        "insist_window_s",
+        "delay_max_s",
+        "timeout_s",
+        "hold_s"
+      ],
+      "description": "Swapping positions on the team's order (all placeholders: nothing in the timing feed shows team orders).",
+      "properties": {
+        "window_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "The two cars must be this close (seconds) for the call to be accepted."
+        },
+        "lift_s_per_lap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "straight",
+            "link",
+            "corner"
+          ],
+          "description": "Pace the yielding car gives away (seconds per lap, while lifting) on a straight, a short link and in a corner.",
+          "properties": {
+            "straight": {
+              "type": "number",
+              "minimum": 0
+            },
+            "link": {
+              "type": "number",
+              "minimum": 0
+            },
+            "corner": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "corner_halfwidth": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "A corner covers this fraction of a lap either side of its mark."
+        },
+        "straight_min_gap": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Between two corners at least this far apart (a lap fraction) the stretch counts as a straight."
+        },
+        "delay_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Chance that the driver queries the order and acts late."
+        },
+        "argue_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Chance that the driver argues with a swap call (placeholder)."
+        },
+        "refuse_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Share of arguments in which the driver refuses until the call is repeated (placeholder)."
+        },
+        "insist_window_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "A repeated call within this many seconds of a refusal is obeyed (placeholder)."
+        },
+        "delay_max_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "timeout_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "An ASAP swap that has not happened after this long is dropped."
+        },
+        "hold_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "After a swap the car that yielded does not attack back for this long."
+        }
+      }
+    },
+    "strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_stop_floor_share"
+      ],
+      "description": "Facts about how strategies look that the AI's plans must respect.",
+      "properties": {
+        "first_stop_floor_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.5,
+          "description": "The earliest a planned first stop comes, as a share of the race: the earliest sensible first stop under green."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "compoundNumbers": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "SOFT",
+          "MEDIUM",
+          "HARD"
+        ]
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "survival": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "age",
+        "surv"
+      ],
+      "properties": {
+        "age": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 1
+        },
+        "surv": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "survivalByCompound": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "SOFT",
+          "MEDIUM",
+          "HARD"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/survival"
+      }
+    },
+    "compound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pace_offset_s",
+        "wear_s_per_lap",
+        "wear_temp_coeff",
+        "cliff"
+      ],
+      "properties": {
+        "pace_offset_s": {
+          "type": "number"
+        },
+        "wear_s_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "wear_temp_coeff": {
+          "type": "number"
+        },
+        "cliff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "derived_from",
+            "onset_age",
+            "onset_cdf",
+            "extra_s_per_lap"
+          ],
+          "properties": {
+            "derived_from": {
+              "enum": [
+                "km_stint",
+                "lap_time_degradation"
+              ]
+            },
+            "onset_age": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 1
+            },
+            "onset_cdf": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "minItems": 1
+            },
+            "extra_s_per_lap": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Extra seconds per lap of age beyond the onset age."
+            }
+          }
+        }
+      }
+    },
+    "circuit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_laps",
+        "lap_length_m",
+        "pit_loss_green_s",
+        "pit_lane_time_s",
+        "passing_effect",
+        "sc_rate_per_lap",
+        "vsc_rate_per_lap",
+        "base_lap_s",
+        "pit_entry_frac",
+        "pit_call_cutoff_frac",
+        "pit_lane_frac",
+        "residual_sc_rate_per_lap",
+        "residual_vsc_rate_per_lap",
+        "sc_response_scale",
+        "stops_distribution",
+        "corners"
+      ],
+      "properties": {
+        "total_laps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lap_length_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pit_loss_green_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "In-lap plus out-lap time loss including the stop."
+        },
+        "pit_lane_time_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Median time in the pit lane including the stop (entry to exit)."
+        },
+        "passing_effect": {
+          "type": "number"
+        },
+        "sc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "vsc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "base_lap_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Lap time at age 0 on mediums at lap 0 for the field median car (the lap model's intercept)."
+        },
+        "pit_entry_frac": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1,
+          "description": "Lap fraction where the pit lane begins."
+        },
+        "pit_call_cutoff_frac": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1,
+          "description": "A box call must be made this much of a lap before pit entry."
+        },
+        "pit_lane_frac": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.3,
+          "description": "Fraction of a lap the pit lane covers from entry to exit."
+        },
+        "residual_sc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Safety car rate not explained by modelled incidents: fitted rate less the rate the incident model produces, set by tools/calibrate.py."
+        },
+        "residual_vsc_rate_per_lap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sc_response_scale": {
+          "type": "number",
+          "minimum": 0,
+          "description": "How much more (or less) often a car stopped on track brings out the safety car here than on average: the circuit's fitted SC rate over the pooled rate (narrow tracks with few run-offs map to SC more often)."
+        },
+        "stops_distribution": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Cars classified at the flag by number of stops (1, 2, 3 ...), dry races of both seasons at this circuit: the AI's strategy plans draw their stop count from it."
+        },
+        "corners": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "n",
+              "frac"
+            ],
+            "properties": {
+              "n": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "frac": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 1
+              }
+            }
+          },
+          "description": "Corner numbers and where they are on the lap (a fraction), in lap order: where a swap of positions can be called."
+        },
+        "simulated_stops": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Stops made by finishers of AI-only races of this bundle at the full distance (tools/simulate_guide.py): what the tyre guide reports. Not an input of the engine."
+        }
+      }
+    },
+    "team": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "pace_delta_s",
+        "reliability",
+        "drivers"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pace_delta_s": {
+          "type": "number",
+          "description": "Lap-time delta in seconds versus the field reference; negative is faster."
+        },
+        "reliability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "drivers": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "pace_delta_s"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "pace_delta_s": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

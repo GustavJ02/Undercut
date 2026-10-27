@@ -1,0 +1,3 @@
+#!/bin/sh
+# Enable once with: git config core.hooksPath .githooks
+exec node "$(git rev-parse --show-toplevel)/client/scripts/check-no-local-mods.mjs"

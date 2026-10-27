@@ -1,0 +1,553 @@
+{
+  "schema": 1,
+  "id": "neon-harbour",
+  "name": "Neon Harbour (example mod)",
+  "version": "1.0.0",
+  "author": "Undercut project",
+  "licence": "CC0-1.0",
+  "kind": "mod",
+  "teams": {
+    "VMR": {
+      "displayName": "Harbour Lights",
+      "short": "HBL",
+      "colours": {
+        "primary": "#00d8ff",
+        "secondary": "#0b1d33",
+        "accent": "#ff3df0"
+      },
+      "livery": {
+        "pattern": "hoops",
+        "image": "assets/harbour-livery.png"
+      },
+      "crew": {
+        "kit": "#00d8ff",
+        "helmet": "#ff3df0"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    },
+    "OHB": {
+      "displayName": "Tidal Forge",
+      "short": "TDF",
+      "colours": {
+        "primary": "#ff6b3d",
+        "secondary": "#1a1130",
+        "accent": "#00ffa3"
+      },
+      "livery": {
+        "pattern": "split"
+      },
+      "crew": {
+        "kit": "#1a1130",
+        "helmet": "#00ffa3"
+      },
+      "engineers": [
+        "harbour-engineer-a",
+        "harbour-strategist"
+      ]
+    },
+    "TLN": {
+      "displayName": "Signal Reef",
+      "short": "SGR",
+      "colours": {
+        "primary": "#b6ff00",
+        "secondary": "#142a2a",
+        "accent": "#ff2e63"
+      },
+      "livery": {
+        "pattern": "dots"
+      },
+      "crew": {
+        "kit": "#b6ff00",
+        "helmet": "#ff2e63"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    },
+    "OQY": {
+      "displayName": "Copper Gull",
+      "short": "CPG",
+      "colours": {
+        "primary": "#ff3df0",
+        "secondary": "#101d38",
+        "accent": "#fff200"
+      },
+      "livery": {
+        "pattern": "diagonal"
+      },
+      "crew": {
+        "kit": "#101d38",
+        "helmet": "#fff200"
+      },
+      "engineers": [
+        "harbour-engineer-a",
+        "harbour-strategist"
+      ]
+    },
+    "CSF": {
+      "displayName": "Lantern Bay",
+      "short": "LNB",
+      "colours": {
+        "primary": "#00ffa3",
+        "secondary": "#2a1636",
+        "accent": "#ff8a00"
+      },
+      "livery": {
+        "pattern": "stripe"
+      },
+      "crew": {
+        "kit": "#00ffa3",
+        "helmet": "#ff8a00"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    },
+    "ITW": {
+      "displayName": "Drift Anchor",
+      "short": "DRA",
+      "colours": {
+        "primary": "#ffe600",
+        "secondary": "#0f2a3d",
+        "accent": "#ff0059"
+      },
+      "livery": {
+        "pattern": "chevron"
+      },
+      "crew": {
+        "kit": "#0f2a3d",
+        "helmet": "#ff0059"
+      },
+      "engineers": [
+        "harbour-engineer-a",
+        "harbour-strategist"
+      ]
+    },
+    "UNG": {
+      "displayName": "Kelp Circuit",
+      "short": "KLP",
+      "colours": {
+        "primary": "#7a5cff",
+        "secondary": "#e8fff6",
+        "accent": "#00e0ff"
+      },
+      "livery": {
+        "pattern": "dots"
+      },
+      "crew": {
+        "kit": "#7a5cff",
+        "helmet": "#00e0ff"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    },
+    "SIB": {
+      "displayName": "Pier Nine",
+      "short": "PRN",
+      "colours": {
+        "primary": "#ff2e63",
+        "secondary": "#08171f",
+        "accent": "#c2ff00"
+      },
+      "livery": {
+        "pattern": "hoops"
+      },
+      "crew": {
+        "kit": "#08171f",
+        "helmet": "#c2ff00"
+      },
+      "engineers": [
+        "harbour-engineer-a",
+        "harbour-strategist"
+      ]
+    },
+    "CVS": {
+      "displayName": "Salt Ember",
+      "short": "SLE",
+      "colours": {
+        "primary": "#ff8a00",
+        "secondary": "#0d2238",
+        "accent": "#00fff0"
+      },
+      "livery": {
+        "pattern": "split"
+      },
+      "crew": {
+        "kit": "#ff8a00",
+        "helmet": "#00fff0"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    },
+    "MHL": {
+      "displayName": "Buoy Motors",
+      "short": "BYM",
+      "colours": {
+        "primary": "#00e0ff",
+        "secondary": "#35122a",
+        "accent": "#ffd000"
+      },
+      "livery": {
+        "pattern": "diagonal"
+      },
+      "crew": {
+        "kit": "#35122a",
+        "helmet": "#ffd000"
+      },
+      "engineers": [
+        "harbour-engineer-a",
+        "harbour-strategist"
+      ]
+    },
+    "GLM": {
+      "displayName": "Mist Dock",
+      "short": "MSD",
+      "colours": {
+        "primary": "#e0e8ff",
+        "secondary": "#143a52",
+        "accent": "#ff4d2e"
+      },
+      "livery": {
+        "pattern": "stripe"
+      },
+      "crew": {
+        "kit": "#e0e8ff",
+        "helmet": "#ff4d2e"
+      },
+      "engineers": [
+        "harbour-engineer-b",
+        "harbour-strategist"
+      ]
+    }
+  },
+  "drivers": {
+    "ALD": {
+      "displayName": "Mara Marlowe",
+      "short": "ALD",
+      "number": 42,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#00d8ff",
+        "secondary": "#0b1d33",
+        "pattern": "split"
+      }
+    },
+    "BRA": {
+      "displayName": "Jory Keel",
+      "short": "BRA",
+      "number": 40,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#ff3df0",
+        "secondary": "#0b1d33",
+        "pattern": "diagonal"
+      }
+    },
+    "COV": {
+      "displayName": "Tilda Brine",
+      "short": "COV",
+      "number": 39,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#ff6b3d",
+        "secondary": "#1a1130",
+        "pattern": "chevron"
+      }
+    },
+    "DUN": {
+      "displayName": "Ansel Gannet",
+      "short": "DUN",
+      "number": 38,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#00ffa3",
+        "secondary": "#1a1130",
+        "pattern": "hoops"
+      }
+    },
+    "EAS": {
+      "displayName": "Cove Spindrift",
+      "short": "EAS",
+      "number": 37,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#b6ff00",
+        "secondary": "#142a2a",
+        "pattern": "dots"
+      }
+    },
+    "FAR": {
+      "displayName": "Ines Halyard",
+      "short": "FAR",
+      "number": 36,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#ff2e63",
+        "secondary": "#142a2a",
+        "pattern": "stripe"
+      }
+    },
+    "GAN": {
+      "displayName": "Rafe Skerry",
+      "short": "GAN",
+      "number": 35,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#ff3df0",
+        "secondary": "#101d38",
+        "pattern": "dots"
+      }
+    },
+    "HOL": {
+      "displayName": "Wynn Cobble",
+      "short": "HOL",
+      "number": 34,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#fff200",
+        "secondary": "#101d38",
+        "pattern": "split"
+      }
+    },
+    "IVE": {
+      "displayName": "Sable Wrack",
+      "short": "IVE",
+      "number": 33,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#00ffa3",
+        "secondary": "#2a1636",
+        "pattern": "diagonal"
+      }
+    },
+    "JES": {
+      "displayName": "Dov Tarn",
+      "short": "JES",
+      "number": 32,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#ff8a00",
+        "secondary": "#2a1636",
+        "pattern": "chevron"
+      }
+    },
+    "KIN": {
+      "displayName": "Lark Ebb",
+      "short": "KIN",
+      "number": 29,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#ffe600",
+        "secondary": "#0f2a3d",
+        "pattern": "hoops"
+      }
+    },
+    "LAR": {
+      "displayName": "Nico Fathom",
+      "short": "LAR",
+      "number": 28,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#ff0059",
+        "secondary": "#0f2a3d",
+        "pattern": "dots"
+      }
+    },
+    "MOR": {
+      "displayName": "Pell Quillon",
+      "short": "MOR",
+      "number": 26,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#7a5cff",
+        "secondary": "#e8fff6",
+        "pattern": "stripe"
+      }
+    },
+    "NAS": {
+      "displayName": "Ona Lugger",
+      "short": "NAS",
+      "number": 25,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#00e0ff",
+        "secondary": "#e8fff6",
+        "pattern": "dots"
+      }
+    },
+    "OAK": {
+      "displayName": "Quay Seabright",
+      "short": "OAK",
+      "number": 24,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#ff2e63",
+        "secondary": "#08171f",
+        "pattern": "split"
+      }
+    },
+    "PEM": {
+      "displayName": "Bram Knot",
+      "short": "PEM",
+      "number": 21,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#c2ff00",
+        "secondary": "#08171f",
+        "pattern": "diagonal"
+      }
+    },
+    "QUE": {
+      "displayName": "Sorrel Barnacle",
+      "short": "QUE",
+      "number": 19,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#ff8a00",
+        "secondary": "#0d2238",
+        "pattern": "chevron"
+      }
+    },
+    "RUD": {
+      "displayName": "Tavi Mooring",
+      "short": "RUD",
+      "number": 17,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#00fff0",
+        "secondary": "#0d2238",
+        "pattern": "hoops"
+      }
+    },
+    "SAN": {
+      "displayName": "Vesna Jetty",
+      "short": "SAN",
+      "number": 15,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#00e0ff",
+        "secondary": "#35122a",
+        "pattern": "dots"
+      }
+    },
+    "THO": {
+      "displayName": "Yule Surf",
+      "short": "THO",
+      "number": 13,
+      "archetype": "harbour-driver-b",
+      "helmet": {
+        "primary": "#ffd000",
+        "secondary": "#35122a",
+        "pattern": "stripe"
+      }
+    },
+    "UND": {
+      "displayName": "Zane Tackle",
+      "short": "UND",
+      "number": 9,
+      "archetype": "harbour-driver-c",
+      "helmet": {
+        "primary": "#e0e8ff",
+        "secondary": "#143a52",
+        "pattern": "dots"
+      }
+    },
+    "VAN": {
+      "displayName": "Ilka Ballast",
+      "short": "VAN",
+      "number": 8,
+      "archetype": "harbour-driver-a",
+      "helmet": {
+        "primary": "#ff4d2e",
+        "secondary": "#143a52",
+        "pattern": "split"
+      }
+    }
+  },
+  "archetypes": {
+    "harbour-crew-a": {
+      "role": "crew",
+      "build": "broad",
+      "height": 1.0,
+      "hair": "tied",
+      "skin": "#a86f4c"
+    },
+    "harbour-crew-b": {
+      "role": "crew",
+      "build": "lean",
+      "height": 0.97,
+      "hair": "curly",
+      "skin": "#6e4631"
+    },
+    "harbour-crew-c": {
+      "role": "crew",
+      "build": "medium",
+      "height": 1.03,
+      "hair": "cap",
+      "skin": "#e5b894"
+    },
+    "harbour-crew-d": {
+      "role": "crew",
+      "build": "lean",
+      "height": 1.05,
+      "hair": "long",
+      "skin": "#d19a73"
+    },
+    "harbour-engineer-a": {
+      "role": "engineer",
+      "build": "medium",
+      "height": 1.02,
+      "hair": "none",
+      "skin": "#8d5a3c"
+    },
+    "harbour-engineer-b": {
+      "role": "engineer",
+      "build": "lean",
+      "height": 0.96,
+      "hair": "tied",
+      "skin": "#f0c8a0"
+    },
+    "harbour-strategist": {
+      "role": "strategist",
+      "build": "broad",
+      "height": 0.99,
+      "hair": "short",
+      "skin": "#c58c63"
+    },
+    "harbour-driver-a": {
+      "role": "driver",
+      "build": "lean",
+      "height": 0.94,
+      "hair": "curly",
+      "skin": "#7a4e35"
+    },
+    "harbour-driver-b": {
+      "role": "driver",
+      "build": "medium",
+      "height": 1.0,
+      "hair": "long",
+      "skin": "#e8bd96"
+    },
+    "harbour-driver-c": {
+      "role": "driver",
+      "build": "broad",
+      "height": 1.03,
+      "hair": "short",
+      "skin": "#b27a52"
+    }
+  },
+  "sounds": {
+    "radioOpen": "assets/radio-open.wav",
+    "gun": "assets/gun.wav"
+  },
+  "tracks": {}
+}

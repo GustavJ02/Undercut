@@ -1,0 +1,167 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshot of a recorded state > matches the stored render model of the first 3 cars at the 20th state 1`] = `
+{
+  "blue": [],
+  "cars": [
+    {
+      "compound": "HARD",
+      "id": "ALD",
+      "lapFrac": 0.366,
+      "livery": {
+        "accent": "#ffb347",
+        "image": undefined,
+        "number": 8,
+        "pattern": "chevron",
+        "primary": "#6d4aa8",
+        "secondary": "#e8e2f2",
+      },
+      "num": 8,
+      "position": 21,
+      "speed": 0.0081,
+      "status": "RUNNING",
+      "teamId": "VMR",
+    },
+    {
+      "compound": "HARD",
+      "id": "BRA",
+      "lapFrac": 0.369,
+      "livery": {
+        "accent": "#ffb347",
+        "image": undefined,
+        "number": 9,
+        "pattern": "chevron",
+        "primary": "#6d4aa8",
+        "secondary": "#e8e2f2",
+      },
+      "num": 9,
+      "position": 20,
+      "speed": 0.00808,
+      "status": "RUNNING",
+      "teamId": "VMR",
+    },
+    {
+      "compound": "MEDIUM",
+      "id": "COV",
+      "lapFrac": 0.592,
+      "livery": {
+        "accent": "#3fb6a8",
+        "image": undefined,
+        "number": 13,
+        "pattern": "stripe",
+        "primary": "#c8963e",
+        "secondary": "#20232b",
+      },
+      "num": 13,
+      "position": 3,
+      "speed": 0.00988,
+      "status": "RUNNING",
+      "teamId": "OHB",
+    },
+  ],
+  "circuit": "austin",
+  "contract": 1,
+  "corners": [
+    {
+      "frac": 0.11,
+      "n": 1,
+    },
+    {
+      "frac": 0.155,
+      "n": 2,
+    },
+    {
+      "frac": 0.2033,
+      "n": 3,
+    },
+    {
+      "frac": 0.2183,
+      "n": 4,
+    },
+    {
+      "frac": 0.2367,
+      "n": 5,
+    },
+    {
+      "frac": 0.2617,
+      "n": 6,
+    },
+    {
+      "frac": 0.3033,
+      "n": 7,
+    },
+    {
+      "frac": 0.3317,
+      "n": 8,
+    },
+    {
+      "frac": 0.3483,
+      "n": 9,
+    },
+    {
+      "frac": 0.3867,
+      "n": 10,
+    },
+    {
+      "frac": 0.4583,
+      "n": 11,
+    },
+    {
+      "frac": 0.6817,
+      "n": 12,
+    },
+    {
+      "frac": 0.7233,
+      "n": 13,
+    },
+    {
+      "frac": 0.7367,
+      "n": 14,
+    },
+    {
+      "frac": 0.7733,
+      "n": 15,
+    },
+    {
+      "frac": 0.8083,
+      "n": 16,
+    },
+    {
+      "frac": 0.8333,
+      "n": 17,
+    },
+    {
+      "frac": 0.8583,
+      "n": 18,
+    },
+    {
+      "frac": 0.91,
+      "n": 19,
+    },
+    {
+      "frac": 0.9667,
+      "n": 20,
+    },
+  ],
+  "cues": [],
+  "lap": 4,
+  "lighting": "green",
+  "mine": [
+    "ALD",
+    "BRA",
+  ],
+  "pitLane": [],
+  "safetyCar": null,
+  "safetyEnding": false,
+  "session": "RACING",
+  "stateIntervalS": 20,
+  "t": 400,
+  "tick": 760,
+  "totalLaps": 10,
+  "weather": {
+    "raining": false,
+    "track": "dry",
+  },
+  "yellowUntilT": 0,
+}
+`;

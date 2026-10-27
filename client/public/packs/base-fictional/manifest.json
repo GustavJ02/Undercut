@@ -1,0 +1,542 @@
+{
+  "schema": 1,
+  "id": "base-fictional",
+  "name": "Base pack (fictional)",
+  "version": "1.0.0",
+  "author": "Undercut",
+  "licence": "CC0-1.0",
+  "kind": "base",
+  "teams": {
+    "VMR": {
+      "displayName": "Violet Meridian",
+      "short": "VMR",
+      "colours": {
+        "primary": "#6d4aa8",
+        "secondary": "#e8e2f2",
+        "accent": "#ffb347"
+      },
+      "livery": {
+        "pattern": "chevron"
+      },
+      "crew": {
+        "kit": "#6d4aa8",
+        "helmet": "#e8e2f2"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    },
+    "OHB": {
+      "displayName": "Ochre Harbour",
+      "short": "OHB",
+      "colours": {
+        "primary": "#c8963e",
+        "secondary": "#20232b",
+        "accent": "#3fb6a8"
+      },
+      "livery": {
+        "pattern": "stripe"
+      },
+      "crew": {
+        "kit": "#c8963e",
+        "helmet": "#20232b"
+      },
+      "engineers": [
+        "engineer-tall",
+        "strategist-calm"
+      ]
+    },
+    "TLN": {
+      "displayName": "Teal Lantern",
+      "short": "TLN",
+      "colours": {
+        "primary": "#1f8a8a",
+        "secondary": "#f2efe6",
+        "accent": "#e04e6a"
+      },
+      "livery": {
+        "pattern": "split"
+      },
+      "crew": {
+        "kit": "#1f8a8a",
+        "helmet": "#f2efe6"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    },
+    "OQY": {
+      "displayName": "Olive Quarry",
+      "short": "OQY",
+      "colours": {
+        "primary": "#8fa31e",
+        "secondary": "#1d2a38",
+        "accent": "#f4a6c0"
+      },
+      "livery": {
+        "pattern": "hoops"
+      },
+      "crew": {
+        "kit": "#8fa31e",
+        "helmet": "#1d2a38"
+      },
+      "engineers": [
+        "engineer-tall",
+        "strategist-calm"
+      ]
+    },
+    "CSF": {
+      "displayName": "Coral Saffron",
+      "short": "CSF",
+      "colours": {
+        "primary": "#e0674a",
+        "secondary": "#2b2d42",
+        "accent": "#f7e9d0"
+      },
+      "livery": {
+        "pattern": "diagonal"
+      },
+      "crew": {
+        "kit": "#e0674a",
+        "helmet": "#2b2d42"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    },
+    "ITW": {
+      "displayName": "Indigo Tidewell",
+      "short": "ITW",
+      "colours": {
+        "primary": "#3b3f9e",
+        "secondary": "#c9ced9",
+        "accent": "#e6e12f"
+      },
+      "livery": {
+        "pattern": "dots"
+      },
+      "crew": {
+        "kit": "#3b3f9e",
+        "helmet": "#c9ced9"
+      },
+      "engineers": [
+        "engineer-tall",
+        "strategist-calm"
+      ]
+    },
+    "UNG": {
+      "displayName": "Umber Northgate",
+      "short": "UNG",
+      "colours": {
+        "primary": "#7a4a2b",
+        "secondary": "#e8d5b5",
+        "accent": "#5fc3e4"
+      },
+      "livery": {
+        "pattern": "chevron"
+      },
+      "crew": {
+        "kit": "#7a4a2b",
+        "helmet": "#e8d5b5"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    },
+    "SIB": {
+      "displayName": "Skyline Ironbark",
+      "short": "SIB",
+      "colours": {
+        "primary": "#5ab8e8",
+        "secondary": "#f3f3f3",
+        "accent": "#b0281f"
+      },
+      "livery": {
+        "pattern": "stripe"
+      },
+      "crew": {
+        "kit": "#5ab8e8",
+        "helmet": "#f3f3f3"
+      },
+      "engineers": [
+        "engineer-tall",
+        "strategist-calm"
+      ]
+    },
+    "CVS": {
+      "displayName": "Cinder Vesper",
+      "short": "CVS",
+      "colours": {
+        "primary": "#34383f",
+        "secondary": "#d85a2a",
+        "accent": "#cfe3d4"
+      },
+      "livery": {
+        "pattern": "diagonal"
+      },
+      "crew": {
+        "kit": "#34383f",
+        "helmet": "#d85a2a"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    },
+    "MHL": {
+      "displayName": "Mint Halcyon",
+      "short": "MHL",
+      "colours": {
+        "primary": "#7fd6b0",
+        "secondary": "#1f3b4d",
+        "accent": "#f2c14e"
+      },
+      "livery": {
+        "pattern": "hoops"
+      },
+      "crew": {
+        "kit": "#7fd6b0",
+        "helmet": "#1f3b4d"
+      },
+      "engineers": [
+        "engineer-tall",
+        "strategist-calm"
+      ]
+    },
+    "GLM": {
+      "displayName": "Garnet Lumen",
+      "short": "GLM",
+      "colours": {
+        "primary": "#7b1e3b",
+        "secondary": "#efe6dc",
+        "accent": "#6fb1ff"
+      },
+      "livery": {
+        "pattern": "split"
+      },
+      "crew": {
+        "kit": "#7b1e3b",
+        "helmet": "#efe6dc"
+      },
+      "engineers": [
+        "engineer-curly",
+        "strategist-calm"
+      ]
+    }
+  },
+  "drivers": {
+    "ALD": {
+      "displayName": "Arlo Aldous",
+      "short": "ALD",
+      "number": 8,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#e8e2f2",
+        "secondary": "#6d4aa8",
+        "pattern": "stripe"
+      }
+    },
+    "BRA": {
+      "displayName": "Bryn Brackett",
+      "short": "BRA",
+      "number": 9,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#ffb347",
+        "secondary": "#6d4aa8",
+        "pattern": "split"
+      }
+    },
+    "COV": {
+      "displayName": "Calla Coverley",
+      "short": "COV",
+      "number": 13,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#20232b",
+        "secondary": "#c8963e",
+        "pattern": "solid"
+      }
+    },
+    "DUN": {
+      "displayName": "Dax Dunmore",
+      "short": "DUN",
+      "number": 15,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#3fb6a8",
+        "secondary": "#c8963e",
+        "pattern": "hoops"
+      }
+    },
+    "EAS": {
+      "displayName": "Elio Eastwick",
+      "short": "EAS",
+      "number": 17,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#f2efe6",
+        "secondary": "#1f8a8a",
+        "pattern": "dots"
+      }
+    },
+    "FAR": {
+      "displayName": "Fenn Farrow",
+      "short": "FAR",
+      "number": 19,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#e04e6a",
+        "secondary": "#1f8a8a",
+        "pattern": "chevron"
+      }
+    },
+    "GAN": {
+      "displayName": "Galen Gantry",
+      "short": "GAN",
+      "number": 21,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#1d2a38",
+        "secondary": "#8fa31e",
+        "pattern": "diagonal"
+      }
+    },
+    "HOL": {
+      "displayName": "Hollis Holloway",
+      "short": "HOL",
+      "number": 24,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#f4a6c0",
+        "secondary": "#8fa31e",
+        "pattern": "stripe"
+      }
+    },
+    "IVE": {
+      "displayName": "Ines Ivers",
+      "short": "IVE",
+      "number": 25,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#2b2d42",
+        "secondary": "#e0674a",
+        "pattern": "split"
+      }
+    },
+    "JES": {
+      "displayName": "Joss Jessop",
+      "short": "JES",
+      "number": 26,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#f7e9d0",
+        "secondary": "#e0674a",
+        "pattern": "solid"
+      }
+    },
+    "KIN": {
+      "displayName": "Kestrel Kinsale",
+      "short": "KIN",
+      "number": 28,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#c9ced9",
+        "secondary": "#3b3f9e",
+        "pattern": "hoops"
+      }
+    },
+    "LAR": {
+      "displayName": "Lior Larkin",
+      "short": "LAR",
+      "number": 29,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#e6e12f",
+        "secondary": "#3b3f9e",
+        "pattern": "dots"
+      }
+    },
+    "MOR": {
+      "displayName": "Marek Mortlake",
+      "short": "MOR",
+      "number": 32,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#e8d5b5",
+        "secondary": "#7a4a2b",
+        "pattern": "chevron"
+      }
+    },
+    "NAS": {
+      "displayName": "Nova Nash",
+      "short": "NAS",
+      "number": 33,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#5fc3e4",
+        "secondary": "#7a4a2b",
+        "pattern": "diagonal"
+      }
+    },
+    "OAK": {
+      "displayName": "Orin Oakley",
+      "short": "OAK",
+      "number": 34,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#f3f3f3",
+        "secondary": "#5ab8e8",
+        "pattern": "stripe"
+      }
+    },
+    "PEM": {
+      "displayName": "Perrin Pemberton",
+      "short": "PEM",
+      "number": 35,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#b0281f",
+        "secondary": "#5ab8e8",
+        "pattern": "split"
+      }
+    },
+    "QUE": {
+      "displayName": "Quill Quennell",
+      "short": "QUE",
+      "number": 36,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#d85a2a",
+        "secondary": "#34383f",
+        "pattern": "solid"
+      }
+    },
+    "RUD": {
+      "displayName": "Rhea Rudd",
+      "short": "RUD",
+      "number": 37,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#cfe3d4",
+        "secondary": "#34383f",
+        "pattern": "hoops"
+      }
+    },
+    "SAN": {
+      "displayName": "Soren Sandoval",
+      "short": "SAN",
+      "number": 38,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#1f3b4d",
+        "secondary": "#7fd6b0",
+        "pattern": "dots"
+      }
+    },
+    "THO": {
+      "displayName": "Tamsin Thorne",
+      "short": "THO",
+      "number": 39,
+      "archetype": "driver-sturdy",
+      "helmet": {
+        "primary": "#f2c14e",
+        "secondary": "#7fd6b0",
+        "pattern": "chevron"
+      }
+    },
+    "UND": {
+      "displayName": "Ulric Underhill",
+      "short": "UND",
+      "number": 40,
+      "archetype": "driver-wiry",
+      "helmet": {
+        "primary": "#efe6dc",
+        "secondary": "#7b1e3b",
+        "pattern": "diagonal"
+      }
+    },
+    "VAN": {
+      "displayName": "Wren Vance",
+      "short": "VAN",
+      "number": 42,
+      "archetype": "driver-slight",
+      "helmet": {
+        "primary": "#6fb1ff",
+        "secondary": "#7b1e3b",
+        "pattern": "stripe"
+      }
+    }
+  },
+  "archetypes": {
+    "crew-lean": {
+      "role": "crew",
+      "build": "lean",
+      "height": 1.0,
+      "hair": "cap",
+      "skin": "#c58c63"
+    },
+    "crew-broad": {
+      "role": "crew",
+      "build": "broad",
+      "height": 1.04,
+      "hair": "none",
+      "skin": "#8d5a3c"
+    },
+    "crew-medium": {
+      "role": "crew",
+      "build": "medium",
+      "height": 0.96,
+      "hair": "tied",
+      "skin": "#e0b48f"
+    },
+    "engineer-tall": {
+      "role": "engineer",
+      "build": "lean",
+      "height": 1.08,
+      "hair": "short",
+      "skin": "#f0c8a0"
+    },
+    "engineer-curly": {
+      "role": "engineer",
+      "build": "medium",
+      "height": 0.98,
+      "hair": "curly",
+      "skin": "#6b4330"
+    },
+    "strategist-calm": {
+      "role": "strategist",
+      "build": "medium",
+      "height": 1.0,
+      "hair": "long",
+      "skin": "#d9a77c"
+    },
+    "driver-slight": {
+      "role": "driver",
+      "build": "lean",
+      "height": 0.93,
+      "hair": "short",
+      "skin": "#e8bd96"
+    },
+    "driver-sturdy": {
+      "role": "driver",
+      "build": "broad",
+      "height": 1.02,
+      "hair": "none",
+      "skin": "#a06a47"
+    },
+    "driver-wiry": {
+      "role": "driver",
+      "build": "medium",
+      "height": 0.97,
+      "hair": "curly",
+      "skin": "#7a4e35"
+    }
+  },
+  "sounds": {},
+  "tracks": {}
+}
