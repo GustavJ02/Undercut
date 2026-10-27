@@ -1,6 +1,6 @@
 import { Gloss } from "../Gloss";
 import { plural } from "../../format";
-import { MIN_STINT_LAPS, OUT_LAP_PENALTY_S, pitLossNow, rejoinAfterStop, rivalLoss, stintSlope, stintsOf, tyreLoss, undercut, wearPrior } from "../../strategy/analysis";
+import { MIN_STINT_LAPS, OUT_LAP_PENALTY_S, pitLossNow, rejoinAfterStop, stopStillPossible, rivalLoss, stintSlope, stintsOf, tyreLoss, undercut, wearPrior } from "../../strategy/analysis";
 import type { LapTable, RaceInfo, TyreGuide, View } from "../../types";
 
 const s1 = (x: number) => x.toFixed(1);
@@ -10,6 +10,8 @@ const s2 = (x: number) => x.toFixed(2);
 export function PitWindow({ view, info, car, name }: { view: View; info: RaceInfo; car: string; name: (id: string) => string }) {
   const loss = pitLossNow(info, view.session), win = info.traffic_window_s ?? 1;
   if (loss === undefined) return <section className="card"><h3>Pit window</h3><p className="muted">The server did not send the pit loss.</p></section>;
+  const row = view.cars.find((c) => c.id === car);
+  if (row && !stopStillPossible(row, info.total_laps, info.pit_call_deadline_frac)) return <section className="card"><h3>Pit window, {name(car)}</h3><p className="muted">Too few laps left for a stop.</p></section>;
   const r = rejoinAfterStop(view.cars, car, loss, win);
   return (
     <section className="card">

@@ -75,7 +75,7 @@ svg.map { width: 100%; background: var(--panel); border: 1px solid var(--line); 
 .monitor .tyre { width: 22px; height: 22px; font-size: var(--fs-s); } /* the one-letter badge is also colour coded, so it may be smaller than body text (checked at 9 px) */
 .monitor-briefing .monitor-screen { padding: 8px; } .monitor-briefing main.prerace { max-width: none; padding: 8px 16px; }
 .layout-pitwall > header { position: absolute; left: var(--pan-x, 0px); top: var(--pan-y, 0px); width: 1920px; height: 56px; opacity: clamp(0, calc((var(--cam-t, 1) - 0.6) * 5), 1); background: rgba(23, 28, 36, 0.92); }
-.layout-pitwall .result, .layout-pitwall .debrief { position: absolute; width: 1920px; height: 1080px; left: 0; top: 0; }
+.layout-pitwall .result, .layout-pitwall .debrief { position: absolute; width: 1920px; height: 1080px; left: 0; top: var(--pan-y, 0px); } /* below the dropped camera's edge: --pan-y is how far it dropped */
 .landing { position: absolute; left: 0; top: -75px; width: 1920px; height: 530px; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center; opacity: calc(1 - var(--cam-t, 0) * 4); }
 .landing h1 { font-size: 104px; letter-spacing: 14px; text-transform: uppercase; text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6); margin: 0; }
 .landing-kicker { margin: 0; letter-spacing: 6px; text-transform: uppercase; color: #ffb36b; font-size: var(--fs-l); }
@@ -253,7 +253,7 @@ input { font: inherit; color: var(--text); background: var(--panel); border: 1px
 
 /* ---- the results screen ---- */
 .results-screen { position: fixed; inset: 56px 0 0 0; background: var(--bg); padding: 16px 32px; overflow: auto; display: grid; gap: 12px; align-content: start; z-index: 4; }
-.layout-pitwall .results-screen { position: absolute; inset: auto; left: 0; top: 56px; width: 1920px; height: 1024px; }
+.layout-pitwall .results-screen { position: absolute; inset: auto; left: 0; top: calc(56px + var(--pan-y, 0px)); width: 1920px; height: 1024px; }
 .results-head { display: flex; gap: 12px; align-items: center; } .results-head h2 { font-size: var(--fs-xl); }
 table.results { border-collapse: collapse; width: 100%; font-size: var(--fs-s); font-variant-numeric: tabular-nums; }
 .results th { text-align: left; color: var(--muted); font-weight: 400; padding: 4px 8px; border-bottom: 1px solid var(--line); }

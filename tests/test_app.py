@@ -138,3 +138,23 @@ def test_a_room_nobody_is_connected_to_is_forgotten_after_its_time_to_live_but_n
                 break
             time.sleep(0.1)
         assert c.get(f"/api/races/{info['id']}").status_code == 404
+
+
+def test_a_finished_race_nobody_is_connected_to_is_forgotten_sooner_than_a_running_one(tmp_path):
+    import time
+    b = make_bundle()
+    b["circuits"]["Test"]["total_laps"] = 2
+    path = tmp_path / "b.json"
+    path.write_text(json.dumps(b))
+    with TestClient(create_app(path, tmp_path / "logs", time_scale=50.0, room_ttl_s=1000.0, finished_room_ttl_s=0.5)) as c:
+        info = c.post("/api/races", json={"team": "T0", "speed": 10, "laps": 2}).json()
+        with c.websocket_connect(f"/ws/{info['id']}?team=T0") as ws:
+            ws.receive_json()
+            ws.send_json({"type": "control", "op": "start"})
+            until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "classification")      # the flag
+            assert c.get(f"/api/races/{info['id']}").status_code == 200          # still there while someone looks
+        for _ in range(60):
+            if c.get(f"/api/races/{info['id']}").status_code == 404:
+                break
+            time.sleep(0.1)
+        assert c.get(f"/api/races/{info['id']}").status_code == 404

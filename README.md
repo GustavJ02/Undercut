@@ -65,7 +65,7 @@ terminal and `cd client && npm run dev` in another, then open the address Vite p
 - **Multiplayer** over a local network (above). There is no debrief for multiplayer races.
 
 Races are written to `logs/<id>.jsonl` and replay exactly. A server nobody is connected to forgets a race after an hour
-(`UNDERCUT_ROOM_TTL_S`).
+(`UNDERCUT_ROOM_TTL_S`), and a finished race after ten minutes (`UNDERCUT_FINISHED_ROOM_TTL_S`).
 
 ## Mods: content packs
 

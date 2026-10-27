@@ -44,6 +44,7 @@ BUNDLE_PATH = _bundle_path()
 LOG_DIR = Path(os.environ.get("UNDERCUT_LOGS", default_log_dir()))
 TICK_LOOP_S = 0.1
 ROOM_TTL_S = float(os.environ.get("UNDERCUT_ROOM_TTL_S", 3600))      # a room nobody is connected to is forgotten after this long
+FINISHED_ROOM_TTL_S = float(os.environ.get("UNDERCUT_FINISHED_ROOM_TTL_S", 600))      # a finished race nobody is connected to: only the result and the debrief are left to see, so a shorter wait
 DEBRIEF_WORKERS = int(os.environ.get("UNDERCUT_DEBRIEF_WORKERS", max(1, min((os.cpu_count() or 2) - 2, 12))))      # workers run niced, so the live race keeps its clock
 
 
@@ -80,7 +81,7 @@ class NewRace(BaseModel):
     incident_multipliers: dict = Field(default_factory=dict)
 
 
-def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_ttl_s=ROOM_TTL_S, mods=None) -> FastAPI:
+def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_ttl_s=ROOM_TTL_S, finished_room_ttl_s=FINISHED_ROOM_TTL_S, mods=None) -> FastAPI:
     """`time_scale` speeds real time up for tests only."""
     app = FastAPI(title="Undercut")
     bundle = load_bundle(bundle_path)
@@ -247,7 +248,7 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
                 sockets[room_id].pop(ws, None)
 
     async def run_room(room_id):
-        room, last, idle, empty_since = rooms[room_id], time.monotonic(), 0.0, None
+        room, last, idle, empty_since, finished_since = rooms[room_id], time.monotonic(), 0.0, None, None
         while True:
             await asyncio.sleep(TICK_LOOP_S)
             now = time.monotonic()
@@ -265,13 +266,19 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
                 empty_since = None
             elif empty_since is None:
                 empty_since = now
-            elif now - empty_since > room_ttl_s:             # nobody has been connected for a while: free the race's memory
-                rooms.pop(room_id, None)
-                sockets.pop(room_id, None)
-                tasks.pop(room_id, None)
-                debriefs.pop(room_id, None)
-                busy.pop(room_id, None)
-                break
+            if finished_since is None and room.race.session == "FINISHED":
+                finished_since = now
+            # nobody has been connected for a while: free the race's memory. A finished race is only waiting to be looked at, so it goes
+            # sooner, counted from the later of the finish and the last person leaving (a dropped player has a few minutes to come back).
+            if empty_since is not None and sockets[room_id] == {}:
+                waited = now - (empty_since if finished_since is None else max(empty_since, finished_since))
+                if waited > (room_ttl_s if finished_since is None else min(finished_room_ttl_s, room_ttl_s)):
+                    rooms.pop(room_id, None)
+                    sockets.pop(room_id, None)
+                    tasks.pop(room_id, None)
+                    debriefs.pop(room_id, None)
+                    busy.pop(room_id, None)
+                    break
 
     @app.websocket("/ws/{room_id}")
     async def play(ws: WebSocket, room_id: str, team: str, seat: str = ""):
@@ -330,6 +337,11 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
         @app.get("/")
         def index():
             return FileResponse(dist / "index.html")
+
+        @app.get("/og-image.png")
+        def og_image():
+            """The preview picture that link cards show (the meta tags in client/index.html)."""
+            return FileResponse(dist / "og-image.png", media_type="image/png")
 
         @app.get("/THIRD_PARTY_NOTICES.txt")
         def notices():

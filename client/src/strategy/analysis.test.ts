@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LapRow } from "../types";
-import { cleanLaps, fuelCorrected, MIN_STINT_LAPS, OUT_LAP_PENALTY_S, rejoinAfterStop, rivalLoss, stintSlope, stintsOf, tyreLoss, undercut, callDeadline, niceTicks, chipOrder, pitLossNow } from "./analysis";
+import { cleanLaps, fuelCorrected, MIN_STINT_LAPS, OUT_LAP_PENALTY_S, rejoinAfterStop, rivalLoss, stintSlope, stintsOf, tyreLoss, undercut, callDeadline, niceTicks, chipOrder, pitLossNow, stopStillPossible } from "./analysis";
 
 const row = (lap: number, time: number, age: number, flags = "", c = "MEDIUM"): LapRow => [lap, time, c as LapRow[2], age, flags];
 
@@ -157,5 +157,16 @@ describe("pitLossNow", () => {
     expect(pitLossNow(info, "SC")).toBe(9.9);
     expect(pitLossNow(info, "VSC")).toBe(14.3);
     expect(pitLossNow({ pit_loss_s: 22 }, "SC")).toBe(22);
+  });
+});
+
+describe("stopStillPossible", () => {
+  it("refuses a stop that would take effect on the last two laps, counting the call deadline", () => {
+    expect(stopStillPossible({ lap: 12, lap_frac: 0.3 }, 15, 0.8)).toBe(true);
+    expect(stopStillPossible({ lap: 12, lap_frac: 0.9 }, 15, 0.8)).toBe(true); // past the deadline: effective on lap 13
+    expect(stopStillPossible({ lap: 13, lap_frac: 0.1 }, 15, 0.8)).toBe(true);
+    expect(stopStillPossible({ lap: 13, lap_frac: 0.9 }, 15, 0.8)).toBe(false); // effective on lap 14: refused by the engine
+    expect(stopStillPossible({ lap: 14, lap_frac: 0.5 }, 15, 0.8)).toBe(false);
+    expect(stopStillPossible({ lap: 5, lap_frac: 0.5 }, 15)).toBe(true);
   });
 });

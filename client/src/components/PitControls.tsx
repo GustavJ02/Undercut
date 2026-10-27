@@ -4,7 +4,7 @@ import { DRY_COMPOUNDS, type View } from "../types";
 import { plural } from "../format";
 import { useNames } from "../hooks";
 import { rivalsAhead } from "../swapUi";
-import { callDeadline, pitLossNow, rejoinAfterStop, tyreLoss } from "../strategy/analysis";
+import { callDeadline, pitLossNow, rejoinAfterStop, stopStillPossible, tyreLoss } from "../strategy/analysis";
 import { ruleWarning } from "../rules";
 import { tyreChoices } from "../weatherUi";
 import type { RaceApi } from "./Play";
@@ -35,6 +35,7 @@ export function PitControls({ view, race, humanCars, disabled }: { view: View; r
               const loss = info ? pitLossNow(info, view.session) : undefined;
               const r = loss === undefined ? null : rejoinAfterStop(view.cars, id, loss, info?.traffic_window_s ?? 1);
               const d = info?.pit_call_deadline_frac === undefined ? null : callDeadline(car.lap_frac, info.pit_call_deadline_frac, car.last_lap_s);
+              if (info && !stopStillPossible(car, info.total_laps, info.pit_call_deadline_frac)) return <p className="muted small">Too few laps left for a stop.</p>;
               return (
                 <>
                   {r && (

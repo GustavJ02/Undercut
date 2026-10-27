@@ -209,6 +209,12 @@ export function callDeadline(lapFrac: number, deadlineFrac: number, lapTimeS: nu
   return { open: left > 0, seconds: left > 0 && lapTimeS ? left * lapTimeS : null };
 }
 
+/** Whether a stop can still be called: the engine refuses one that would take effect on the last two laps (a call after the deadline
+ * takes effect on the next lap). `lap` is the laps the car has completed. */
+export function stopStillPossible(car: { lap: number; lap_frac: number }, totalLaps: number, deadlineFrac?: number): boolean {
+  return car.lap + (deadlineFrac !== undefined && car.lap_frac > deadlineFrac ? 1 : 0) < totalLaps - 1;
+}
+
 /** Round tick values between `lo` and `hi`: multiples of 0.1, 0.2, 0.5, 1, 2, 5, 10 ... s, the smallest step that gives about `count` ticks. */
 export function niceTicks(lo: number, hi: number, count = 5): number[] {
   const raw = (hi - lo) / Math.max(count - 1, 1);
