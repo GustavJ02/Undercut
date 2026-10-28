@@ -29,6 +29,7 @@ export interface RenderCar {
   id: string;
   teamId: string;
   num: number;
+  short: string; // the three-letter driver code, what the track scene labels a car with
   lapFrac: number; // 0..1 at the newest state
   speed: number; // lap fractions per sim second, derived from successive states
   status: CarStatus;
@@ -175,7 +176,7 @@ const EMA = 0.4;
 
 function carOf(c: ContractCar, prev: RenderCar | undefined, dtS: number, r: Resolver): RenderCar {
   const team = r.team(c.team);
-  const num = r.driver(c.id).number;
+  const { number: num, short } = r.driver(c.id);
   let speed = 0;
   if (prev && dtS > 0 && c.status !== "RETIRED" && c.status !== "FINISHED") {
     let d = c.lap_frac - prev.lapFrac;
@@ -186,6 +187,7 @@ function carOf(c: ContractCar, prev: RenderCar | undefined, dtS: number, r: Reso
     id: c.id,
     teamId: c.team,
     num,
+    short,
     lapFrac: Math.min(Math.max(c.lap_frac, 0), 0.999999),
     speed,
     status: c.status,

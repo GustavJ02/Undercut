@@ -160,3 +160,29 @@ def test_a_multiplayer_game_ranks_its_strategists_and_each_player_reads_only_the
     assert mine["report"]["team"] == "T1" and mine["report"]["decisions"]
     assert c.get(f"/api/games/{code}/debrief?team=T1&seat={seat0}").status_code == 403         # another player's seat
     assert c.get(f"/api/games/{code}/debrief?team=T1").status_code == 403
+
+
+def test_stopping_the_server_stops_the_debrief_workers(tmp_path):
+    """Regression: the pool's worker processes outlived the server and kept holding its port."""
+    import multiprocessing
+    b = make_bundle()
+    b["circuits"]["Test"]["total_laps"] = 3
+    path = tmp_path / "b.json"
+    path.write_text(json.dumps(b))
+    with TestClient(create_app(path, tmp_path / "logs", time_scale=50.0, live_debrief=True)) as c:
+        info = c.post("/api/races", json={"team": "T0", "speed": 10, "laps": 3}).json()
+        with c.websocket_connect(f"/ws/{info['id']}?team=T0") as ws:
+            ws.receive_json()
+            ws.send_json({"type": "action", "kind": "CallBox", "car": "T0A", "compound": "HARD"})
+            ws.send_json({"type": "control", "op": "start"})
+            for _ in range(20000):
+                m = ws.receive_json()
+                if m["type"] == "event" and m["event"]["type"] == "classification":
+                    break
+        wait_done(c, f"/api/races/{info['id']}/debrief")
+        assert multiprocessing.active_children()                       # the pool is up
+    for _ in range(50):
+        if not multiprocessing.active_children():
+            break
+        time.sleep(0.1)
+    assert not multiprocessing.active_children()

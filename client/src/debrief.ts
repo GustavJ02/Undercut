@@ -49,9 +49,18 @@ export function deltaText(o: DebriefOption): string {
 
 export const VERDICT_TEXT: Record<DebriefOption["verdict"], string> = { taken: "taken", better: "better", worse: "worse", same: "no meaningful difference" };
 
-/** A decision worth opening: a meaningful miss, or a contribution clearly different from zero. The rest collapse to one line. */
+/** A contribution big enough to look at whatever its error bar: 2 points or a place either way. */
+export const LARGE_POINTS = 2;
+export const LARGE_PLACES = 1;
+export const large = (d: DebriefDecision): boolean => Math.abs(d.contribution_points) >= LARGE_POINTS || Math.abs(d.contribution_places) >= LARGE_PLACES;
+
+/** A large contribution that is still within the noise: worth a look, but not a proven one. */
+export const largeButNoisy = (d: DebriefDecision): boolean => large(d) && !clear(d.contribution_points, d.contribution_points_se);
+
+/** A decision worth opening: a meaningful miss, a contribution clearly different from zero, or a large one even within the noise (it
+ * said so on the page). The rest collapse to one line. */
 export function meaningful(d: DebriefDecision): boolean {
-  return d.significant || clear(d.contribution_points, d.contribution_points_se) || d.options.some((o) => o.verdict === "worse");
+  return d.significant || clear(d.contribution_points, d.contribution_points_se) || large(d) || d.options.some((o) => o.verdict === "worse");
 }
 
 /** The decision with the biggest miss, if any miss is meaningful, and the decision with the largest negative contribution when that is

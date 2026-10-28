@@ -121,7 +121,10 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
             if room.live:
                 room.live.stop()
         if "p" in pool:
+            workers = list((getattr(pool["p"], "_processes", None) or {}).values())
             pool["p"].shutdown(wait=False, cancel_futures=True)
+            for proc in workers:
+                proc.terminate()          # the workers hold the same pipes as the parent, so they never see it go: they would outlive the server and keep its port
 
     @app.get("/api/options")
     def options():

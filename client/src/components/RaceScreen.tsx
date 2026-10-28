@@ -1,5 +1,6 @@
 import { Gloss, GlossaryScope } from "./Gloss";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { DEBRIEF_HASH, debriefFromHash } from "../nav";
 import { useMyColour, useNames } from "../hooks";
 import { loadSettings, saveSettings } from "../settings";
 import { TrackScene } from "../scene/TrackScene";
@@ -31,7 +32,27 @@ export type Look = "wall" | "strategy";
 
 export function RaceScreen({ race, onLeave, layout = "plain", look = "wall", setLook = () => {}, trackUp = false, setTrackUp = () => {} }: { race: RaceApi; onLeave: () => void; layout?: Layout; look?: Look; setLook?: (l: Look) => void; trackUp?: boolean; setTrackUp?: (up: boolean) => void }) {
   const { view, info, clock, messages, error } = race.state;
-  const [debrief, setDebrief] = useState(false);
+  // the Debrief is a step in the browser's history (#debrief): Back closes it, and a link or a refresh reopens it
+  const [debrief, setDebriefState] = useState(() => debriefFromHash(location.hash));
+  const pushedDebrief = useRef(false);
+  useEffect(() => {
+    const on = () => setDebriefState(debriefFromHash(location.hash));
+    window.addEventListener("popstate", on);
+    return () => window.removeEventListener("popstate", on);
+  }, []);
+  const setDebrief = (open: boolean) => {
+    if (open) {
+      history.pushState(null, "", location.pathname + location.search + DEBRIEF_HASH);
+      pushedDebrief.current = true;
+      setDebriefState(true);
+    } else if (pushedDebrief.current) {
+      pushedDebrief.current = false;
+      history.back();                                                  // the popstate closes it
+    } else {
+      history.replaceState(null, "", location.pathname + location.search);
+      setDebriefState(false);
+    }
+  };
   const [focusLap, setFocusLap] = useState<{ lap: number; car: string; n: number } | null>(null); // a decision of the debrief, shown in the Strategy chart
   const mine = useMyColour(race.state.info?.human_team);
   const names = useNames();

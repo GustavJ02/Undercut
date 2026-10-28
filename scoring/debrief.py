@@ -20,6 +20,7 @@ scores has points of zero in every alternative and the position still says somet
 import math
 import os
 import pickle
+import signal
 import statistics as st
 from collections import namedtuple
 from concurrent.futures import ProcessPoolExecutor
@@ -45,11 +46,13 @@ class DebriefError(ValueError):
 
 
 def _lower_priority():
-    """Workers run niced so a live game on the same machine keeps its clock."""
+    """Workers run niced so a live game on the same machine keeps its clock. They also take the default signal handling back: a worker is
+    forked from the server, whose handlers for SIGTERM and SIGINT only ask the server to stop, so a worker would ignore both."""
     try:
         os.nice(10)
     except OSError:
         pass
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
 
 def future_seed(seed: int, k: int) -> int:

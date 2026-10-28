@@ -51,6 +51,14 @@ export async function createGame(req: NewRaceRequest & { name?: string }): Promi
   return r.json();
 }
 
+/** A race (solo or multiplayer) by its id: whether it is still on the server and what it is. Throws "gone" when the server has forgotten it. */
+export async function getRace(id: string): Promise<{ id: string; multiplayer: boolean; human_team: string | null }> {
+  const r = await fetch(`/api/races/${encodeURIComponent(id)}`);
+  if (r.status === 404) throw new Error("gone");
+  if (!r.ok) throw new Error(`could not find the race: ${await detail(r)}`);
+  return r.json();
+}
+
 /** The game behind a code: its players, so the join screen can show which teams are free. Throws "no game" for an unknown code. */
 export async function getGame(code: string): Promise<{ id: string; players: Player[]; circuit: string; total_laps: number; host: string | null }> {
   const r = await fetch(`/api/games/${encodeURIComponent(code.trim())}`);

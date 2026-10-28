@@ -14,8 +14,9 @@ SETUP = {"seed": 11, "laps": 20, "circuit": "austin"}
 # Golden digest of the event log for the setup above. It changes whenever engine behaviour changes; update it only on
 # purpose, with a decision-log note saying why the physics changed. (Moving the circuits into their own folders changed only the
 # bundle hash in the log header: the events are identical. Renaming the teams and drivers changed the random streams, which are
-# keyed by car id, so the race itself is a different draw from the same model.)
-GOLDEN = "2be8e50c8f9707dcd3196e6cab19cd5ec1a014f23f419ec5d2df0b7c51d62764"
+# keyed by car id, so the race itself is a different draw from the same model. Fix B18: this is a 20-lap race, and the AI teams now scale
+# their planned stop counts to the share of the full distance, so they make fewer stops here.)
+GOLDEN = "6874b62d703a05811c4dd70369a227fc7e0f914aab3a896357c53809b12ae914"
 
 
 @pytest.fixture(scope="module")

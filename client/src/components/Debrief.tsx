@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getDebrief, getGameDebrief, startDebrief } from "../api";
-import { VERDICT_TEXT, barScale, fixed, headlines, meaningful, place, signed, verdict } from "../debrief";
+import { VERDICT_TEXT, barScale, fixed, headlines, largeButNoisy, meaningful, place, signed, verdict } from "../debrief";
 import { RULE_TEXT } from "../rules";
 import type { DebriefDecision, DebriefOption, DebriefReport, DebriefStatus } from "../types";
 
@@ -164,7 +164,8 @@ function DecisionRow({ d, name, onShowLap }: { d: DebriefDecision; name: string;
       <div className="d-body">
         <OptionsTable options={d.options} />
         <p className="small">
-          Contribution to your skill: <strong>{signed(d.contribution_points)} ± {fixed(d.contribution_points_se)} pts</strong>, {signed(d.contribution_places)} places.{" "}
+          Contribution to your skill: <strong>{signed(d.contribution_points)} ± {fixed(d.contribution_points_se)} pts</strong>, {signed(d.contribution_places)} places
+          {largeButNoisy(d) ? " (large, but within the noise)" : ""}.{" "}
           {d.miss_points > 0 ? `Miss: ${fixed(d.miss_points)} pts, ${fixed(d.miss_places)} places against the best option.` : "No option beat the taken one."}
         </p>
         <button className="link-lap" onClick={() => onShowLap(d.lap, d.car)}>Show lap {d.lap} in the Strategy chart ▸</button>

@@ -310,3 +310,4 @@ footer.legal { color: var(--muted); font-size: var(--fs-s); display: grid; gap: 
 .ranking { display: grid; gap: 6px; } .ranking h3 { margin: 0; font-size: var(--fs-l); } .ranking .winner { margin: 0; font-size: var(--fs-m); }
 .ranking-table td.key { position: relative; min-width: 140px; } .scorebar { position: absolute; left: 0; top: 4px; bottom: 4px; background: color-mix(in srgb, var(--accent) 28%, transparent); z-index: 0; } .ranking-table td.key { z-index: 1; }
 .score { margin: 0; font-size: var(--fs-l); } .score strong { font-size: var(--fs-xl); }
+.app-notice { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 60; margin: 0; padding: 8px 14px; border-radius: 6px; background: var(--panel); border: 1px solid var(--line); color: var(--warn); cursor: pointer; }

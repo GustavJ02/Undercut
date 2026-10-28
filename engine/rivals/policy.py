@@ -44,12 +44,20 @@ class RulePolicy(Policy):
         self.traits = D.team_traits(seed, team_id)
         self.pit_loss = bundle["circuits"][circuit_name]["pit_loss_green_s"]
         self.stops_dist = bundle["circuits"][circuit_name]["stops_distribution"]
+        self.race_share = min(1.0, total_laps / bundle["circuits"][circuit_name]["total_laps"])      # a short race is this share of the full distance
         self.stints = {**bundle["stints"]["pooled"], **bundle["stints"]["circuits"].get(circuit_name, {})}
         self.plans, self.seen_stops, self.draws = {}, {}, {}
         self.last_weather = {}
         self.swaps = []                                       # laps at which this team ordered a swap
         self.held = 0                                         # consecutive looks at a car held up by its team mate
         self.reasons = []                                     # why each call was made, for debugging and tests
+
+    def _stops_for_race(self, drawn):
+        """The stop count for this race from one drawn from the full distance: scaled by the share of the distance that is run and rounded,
+        and never fewer than one if the full race would have had a stop (a short race still has the two-compound rule)."""
+        if drawn <= 0 or self.race_share >= 1.0:
+            return drawn
+        return max(1, round(drawn * self.race_share))
 
     def _draw(self, car_id, name, index, n=2000):
         key = (car_id, name)
@@ -68,7 +76,7 @@ class RulePolicy(Policy):
         dist = self.stops_dist
         keys = sorted(dist, key=int)
         counts = np.array([dist[k] for k in keys], float)
-        n_stops = int(keys[int(r.choice(len(counts), p=counts / counts.sum()))])
+        n_stops = self._stops_for_race(int(keys[int(r.choice(len(counts), p=counts / counts.sum()))]))
         trans, avail, comp = self.bundle["transitions"], dict(sets), start
         avail[start] = max(avail.get(start, 0) - 1, 0)
         seq = [start]
@@ -99,7 +107,7 @@ class RulePolicy(Policy):
         sets = row["sets_remaining"]
         keys = sorted(self.stops_dist, key=int)
         counts = np.array([self.stops_dist[k] for k in keys], float)
-        total = int(keys[int(r.choice(len(counts), p=counts / counts.sum()))])
+        total = self._stops_for_race(int(keys[int(r.choice(len(counts), p=counts / counts.sum()))]))
         more = max(total - stops, 0)
         if len(set(row["compounds_used"])) < 2:
             more = max(more, 1)

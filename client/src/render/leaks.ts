@@ -2,7 +2,7 @@
  * `src/` so the same check can run in development against live data. */
 const ALLOWED: Record<string, string[]> = {
   model: ["contract", "t", "tick", "stateIntervalS", "session", "lighting", "yellowUntilT", "lap", "totalLaps", "circuit", "safetyEnding", "blue", "safetyCar", "weather", "corners", "cars", "pitLane", "cues", "mine"],
-  car: ["id", "teamId", "num", "lapFrac", "speed", "status", "compound", "position", "livery"],
+  car: ["id", "teamId", "num", "short", "lapFrac", "speed", "status", "compound", "position", "livery"],
   livery: ["primary", "secondary", "accent", "pattern", "number", "image"],
   cue: ["id", "type", "tick", "car", "other", "compound"],
   pit: ["car", "teamId", "sinceT"],

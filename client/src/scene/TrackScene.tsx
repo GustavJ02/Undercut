@@ -1,6 +1,6 @@
 /** The Pixi scene skeleton (P1): the circuit outline with every car drawn from the render model, moving at 60 fps between states.
  * React owns the element and nothing else: the ticker reads the `ModelStore` directly, so state updates never cause a React render.
- * Cars are sprites from a per-livery texture (generated once from `livery.ts`) with an upright number label. */
+ * Cars are sprites from a per-livery texture (generated once from `livery.ts`) with an upright driver-code label. */
 import { Application, Container, Graphics, Sprite, Text, type Texture } from "pixi.js";
 import { useEffect, useRef, useState } from "react";
 import { DESTROY, SIMULATE_NO_WEBGL } from "./destroy";
@@ -46,7 +46,7 @@ class CarNode {
     this.body.anchor.set(0.5);
     this.body.width = CAR_LEN;
     this.body.height = CAR_LEN * (tex.height / tex.width);
-    this.label = new Text({ text: String(car.num), style: { fontSize: 44, fontFamily: "system-ui, sans-serif", fontWeight: "700", fill: 0xffffff, stroke: { color: 0x000000, width: 4 } }, resolution: 1 });
+    this.label = new Text({ text: car.short, style: { fontSize: 44, fontFamily: "system-ui, sans-serif", fontWeight: "700", fill: 0xffffff, stroke: { color: 0x000000, width: 4 } }, resolution: 1 });
     this.label.anchor.set(0.5);
     this.ring = new Graphics();
     if (mine) this.ring.circle(0, 0, CAR_LEN * 0.62).stroke({ color: 0xffffff, width: 1, alpha: 0.85 });
@@ -100,9 +100,9 @@ export function TrackScene({ store, circuit, onUnavailable }: { store: ModelStor
 }
 
 /** Show the number labels of `nodes` (most important first) but not one that would sit on top of a label already shown. `scale` is the
- * label's world-space scale; a label is about 1.3 heights wide for two digits, so 2.6 keeps a gap between two. */
+ * label's world-space scale; a label is about 1.9 heights wide for three capitals, so 3.4 keeps a gap between two. */
 export function declutter(nodes: { root: { x: number; y: number }; label: { y: number; visible: boolean } }[], scale: number): void {
-  const h = LABEL_PX * scale, w = h * 2.6;
+  const h = LABEL_PX * scale, w = h * 3.4;
   const shown: { x: number; y: number }[] = [];
   for (const n of nodes) {
     const x = n.root.x, y = n.root.y + n.label.y;
@@ -212,17 +212,17 @@ function run(app: Application, store: ModelStore, outline: Outline): () => void 
       let n = nodes.get(c.id);
       if (!n) {
         n = new CarNode(textureFor(c), c, mine.has(c.id));
-        n.key = `${liveryKey(c.livery)}|${c.livery.number}`;
+        n.key = `${liveryKey(c.livery)}|${c.livery.number}|${c.short}`;
         nodes.set(c.id, n);
         cars.addChild(n.root);
         placeLabel(n);
       }
       n.car = c;
-      const key = `${liveryKey(c.livery)}|${c.livery.number}`;
+      const key = `${liveryKey(c.livery)}|${c.livery.number}|${c.short}`;
       if (key !== n.key) { // another pack was chosen, or the pack arrived after the first state
         n.key = key;
         n.body.texture = textureFor(c);
-        n.label.text = String(c.num);
+        n.label.text = c.short;
       }
       n.label.visible = false; // decided below, once every car is placed
       const gone = c.status === "RETIRED" || c.status === "FINISHED";

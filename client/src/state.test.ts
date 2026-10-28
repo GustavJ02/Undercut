@@ -81,7 +81,7 @@ describe("position smoothing", () => {
   });
 });
 
-import { deltaText, fixed, headlines, meaningful, signed, verdict } from "./debrief";
+import { deltaText, fixed, headlines, largeButNoisy, meaningful, signed, verdict } from "./debrief";
 import type { DebriefDecision, DebriefOption, DebriefReport, DebriefSummary } from "./types";
 
 const summary = (over: Partial<DebriefSummary> = {}): DebriefSummary => ({ actual_points: 33, actual_position: 2.5, baseline_points: 14.5, baseline_points_se: 1, expected_points: 29.6,
@@ -137,6 +137,14 @@ describe("which decisions open", () => {
     expect(meaningful(decision({ significant: true }))).toBe(true);
     expect(meaningful(decision({ contribution_points: 4, contribution_points_se: 1 }))).toBe(true);
     expect(meaningful(decision({ options: [option({ verdict: "worse" })] }))).toBe(true);
+  });
+  it("opens a large contribution even when it is within the noise (B22), and says so", () => {
+    const swap = decision({ kind: "swap", contribution_points: -4.3, contribution_points_se: 3, contribution_places: -0.4 });
+    expect(meaningful(swap)).toBe(true);
+    expect(largeButNoisy(swap)).toBe(true);
+    expect(meaningful(decision({ contribution_points: 0.4, contribution_points_se: 3, contribution_places: -1.2 }))).toBe(true);       // a place or more
+    expect(meaningful(decision({ contribution_points: 1.9, contribution_points_se: 3, contribution_places: 0.9 }))).toBe(false);      // below both thresholds
+    expect(largeButNoisy(decision({ contribution_points: -4.3, contribution_points_se: 0.5 }))).toBe(false);                           // clear, not noisy
   });
   it("headlines the biggest miss, and the costliest contribution when it is another decision", () => {
     const a = decision({ index: 1, significant: true, miss_points: 7.8 });
