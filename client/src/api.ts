@@ -66,7 +66,7 @@ export async function joinGame(code: string, team: string, name: string): Promis
   return r.json();
 }
 
-import type { DebriefStatus } from "./types";
+import type { DebriefStatus, RankingStatus } from "./types";
 
 export async function startDebrief(roomId: string, futures = 24): Promise<void> {
   const r = await fetch(`/api/races/${roomId}/debrief?futures=${futures}`, { method: "POST" });
@@ -75,6 +75,20 @@ export async function startDebrief(roomId: string, futures = 24): Promise<void> 
 
 export async function getDebrief(roomId: string): Promise<DebriefStatus> {
   const r = await fetch(`/api/races/${roomId}/debrief`);
+  if (!r.ok) throw new Error(`debrief: ${(await r.json()).detail ?? r.status}`);
+  return r.json();
+}
+
+/** The strategists of a finished multiplayer game, best first. */
+export async function getRanking(code: string): Promise<RankingStatus> {
+  const r = await fetch(`/api/games/${encodeURIComponent(code)}/ranking`);
+  if (!r.ok) throw new Error(`ranking: ${(await r.json()).detail ?? r.status}`);
+  return r.json();
+}
+
+/** A player's own detailed debrief of a multiplayer game, for the seat they hold. */
+export async function getGameDebrief(code: string, team: string, seat: string): Promise<DebriefStatus> {
+  const r = await fetch(`/api/games/${encodeURIComponent(code)}/debrief?team=${encodeURIComponent(team)}&seat=${encodeURIComponent(seat)}`);
   if (!r.ok) throw new Error(`debrief: ${(await r.json()).detail ?? r.status}`);
   return r.json();
 }

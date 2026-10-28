@@ -339,3 +339,85 @@ def test_the_default_strategy_that_takes_over_counts_a_stop_already_called_inste
     assert plan[r.race.cars["T0A"].stops][0] is None                   # the entries before it are placeholders, as for a car that stopped before
     other = r.policies["T0"].plans["T0B"]
     assert other[r.race.cars["T0B"].stops][0] == "MEDIUM"             # a car with nothing called is planned from where it is
+
+
+# -- a multiplayer race: each player is judged on their own calls -----------------------------------------------------------
+
+def multiplayer_race():
+    """Two players, each with a call, and the second one's seat on the autopilot for a stretch."""
+    from server.room import AWAY_S
+    b = make_bundle()
+    b["circuits"]["Test"]["total_laps"] = 10
+    room = Room("m1", b, {"seed": 5, "circuit": "Test"}, human_team="T0", multiplayer=True)
+    room.claim("T1", "Sam")
+    room.handle("T0", {"type": "action", "kind": "SetStartTyres", "car": "T0A", "compound": "SOFT"})
+    room.handle("T0", {"type": "control", "op": "speed", "value": 10})
+    room.handle("T0", {"type": "control", "op": "start"})
+    room.set_connected("T0", True)
+    room.set_connected("T1", True)
+    room.advance(15.0)
+    room.handle("T0", {"type": "action", "kind": "CallBox", "car": "T0A", "compound": "HARD"})
+    room.advance(6.0)
+    room.handle("T1", {"type": "action", "kind": "CallBox", "car": "T1B", "compound": "SOFT"})
+    room.advance(4.0)
+    room.set_connected("T1", False)
+    room.advance(AWAY_S + 1.0)
+    room.set_connected("T1", True)
+    return _play_out(room), b
+
+
+def test_every_human_team_gets_a_debrief_judged_on_its_own_calls_and_a_score_out_of_100():
+    from scoring.debrief import run_debrief_all
+    room, b = multiplayer_race()
+    reports = run_debrief_all(b, room.log, futures=3)
+    assert set(reports) == {"T0", "T1"}
+    for team, r in reports.items():
+        s = r["summary"]
+        assert r["cars"] == [c for c in ("T0A", "T0B", "T1A", "T1B") if c.startswith(team)]
+        assert {d["car"] for d in r["decisions"]} <= set(r["cars"])                   # nobody is credited with another player's call
+        assert 0 <= s["score_low"] <= s["score"] <= s["score_high"] <= 100
+        assert abs(s["skill_points"] - sum(d["contribution_points"] for d in r["decisions"])) < 1e-9
+        assert abs(s["expected_points"] - (s["baseline_points"] + s["skill_points"])) < 1e-9
+        assert abs(s["actual_points"] - (s["expected_points"] + s["luck_points"])) < 1e-9
+    assert any(d["kind"] == "call" for d in reports["T0"]["decisions"]) and any(d["kind"] == "call" for d in reports["T1"]["decisions"])
+
+
+def test_the_ai_stretch_of_a_seat_is_not_a_decision_of_its_player():
+    from scoring.debrief import human_decisions
+    from engine.runner import car_teams
+    room, b = multiplayer_race()
+    mine = human_decisions(room.log, ["T1A", "T1B"], car_teams(b))
+    calls = [d for d in mine if d["kind"] == "call"]
+    assert [(d["car"], d["taken"][0][1]) for d in calls] == [("T1B", "SOFT")]           # the AI's own stop while the seat was away is not listed
+
+
+def test_the_strategist_score_is_50_for_the_ais_own_result_and_rises_and_falls_smoothly():
+    from scoring.debrief import strategist_score
+    assert strategist_score(0, 0)[0] == 50
+    assert 85 < strategist_score(3, 0)[0] < 95 and 5 < strategist_score(-3, 0)[0] < 15
+    assert strategist_score(1, 0)[0] < strategist_score(2, 0)[0] < strategist_score(3, 0)[0] < 100
+    assert abs(strategist_score(2, 3)[0] + strategist_score(-2, -3)[0] - 100) < 1e-9          # symmetric around 50
+    mid, lo, hi = strategist_score(1, 1, 1.0, 1.0)                                              # (score, low, high)
+    assert lo < mid < hi
+
+
+def test_a_stop_rule_penalty_counts_against_the_strategist_score():
+    """Not stopping is no call, so the debrief's decisions never see it; the penalty is added to the score as the places it cost."""
+    from scoring.debrief import unpenalised_order
+    events = [{"tick": 1, "type": "finish", "payload": {"car": c, "laps": 5, "time": t}} for c, t in (("A", 10.0), ("B", 11.0), ("C", 12.0))]
+    assert unpenalised_order(events, ["B", "C", "A"]) == ["A", "B", "C"]                               # A was penalised: classified last
+    assert unpenalised_order(events + [{"tick": 2, "type": "finish", "payload": {"car": "D", "laps": 4, "time": 9.0}}], ["B", "C", "D", "A"]) == ["A", "B", "C", "D"]
+    room, b = finished_room_without_stops()
+    s = run_debrief(b, room.log, futures=2)["summary"]
+    assert s["penalty_places"] > 0 and s["penalty_points"] >= 0
+    from scoring.debrief import strategist_score
+    assert s["score"] < strategist_score(s["skill_places"], s["skill_points"])[0]
+
+
+def finished_room_without_stops():
+    b = make_bundle()
+    b["circuits"]["Test"]["total_laps"] = 6
+    room = Room("p1", b, {"seed": 4, "circuit": "Test"}, human_team="T0")
+    room.handle("T0", {"type": "control", "op": "speed", "value": 10})
+    room.handle("T0", {"type": "control", "op": "start"})
+    return _play_out(room), b

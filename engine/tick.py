@@ -15,7 +15,7 @@ driver errors and punctures are not modelled; a retired car vanishes from the tr
 import math
 
 from engine import orders, weather
-from engine.actions import BoxOpposite, CallBox, CancelBox, CancelSwap, SetStartTyres, SwapPositions
+from engine.actions import BoxOpposite, CallBox, CancelBox, CancelSwap, SeatNote, SetStartTyres, SwapPositions
 from engine.state import MAX_STOPS, WET_COMPOUNDS, cliff_onset_from_uniform, set_lap_time
 
 ACTIVE = ("RUNNING", "IN_PIT")
@@ -23,6 +23,9 @@ ACTIVE = ("RUNNING", "IN_PIT")
 
 def _apply_actions(race, actions, ev):
     for a in actions:
+        if isinstance(a, SeatNote):                      # a note for the log and the replay, nothing for the race itself
+            _emit(race, ev, "action", kind="SeatNote", car=None, team=a.team, state=a.state)
+            continue
         extra = {"target": a.target} if isinstance(a, BoxOpposite) else {}        # only this action has one: other logs stay as they were
         _emit(race, ev, "action", kind=type(a).__name__, car=a.car, compound=getattr(a, "compound", None),
               with_car=getattr(a, "with_car", None), anchor=getattr(a, "anchor", None), turn=getattr(a, "turn", None), **extra)

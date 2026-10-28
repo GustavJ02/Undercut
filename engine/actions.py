@@ -46,6 +46,14 @@ class CancelSwap:
     car: str
 
 
+@dataclass(frozen=True)
+class SeatNote:
+    """Not a team call: a multiplayer seat went to the autopilot (`state` "auto", the AI drives the player's cars) or came back
+    (`state` "back"). It is logged so a replay hands the cars over at the same tick."""
+    team: str
+    state: str
+
+
 def action_from_payload(p: dict):
     """Rebuild an action from a logged `action` event payload (replays and the debrief)."""
     kind = p["kind"]
@@ -59,4 +67,6 @@ def action_from_payload(p: dict):
         return CancelSwap(p["car"])
     if kind == "SwapPositions":
         return SwapPositions(p["car"], p["with_car"], p.get("anchor", "asap"), p.get("turn"))
+    if kind == "SeatNote":
+        return SeatNote(p["team"], p["state"])
     raise ValueError(f"unknown action kind {kind!r}")

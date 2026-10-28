@@ -60,9 +60,11 @@ terminal and `cd client && npm run dev` in another, then open the address Vite p
   need the call repeated); drivers report tyres, weather and damage, ask to box or to be let by, and answer questions.
 - **Strategist screen:** lap times of every car (with a fuel-corrected view), tyre wear per stint, the pit window and undercut
   threat, and your own telemetry.
-- **Debrief:** every decision replayed against 24 alternative futures, with skill and luck told apart. See decisions D23.
+- **Debrief:** every decision replayed against 24 alternative futures, with skill and luck told apart, and a strategist score out of 100 (50 = as good as
+  the AI would have been with your cars). It is worked out while the race runs, so it is ready at the flag.
 - **Chaos mode** scales the rates of collisions, failures, lap-one trouble and safety cars.
-- **Multiplayer** over a local network (above). There is no debrief for multiplayer races.
+- **Multiplayer** over a local network (above). Each player is scored on their own calls; the best strategist wins, and everyone can open
+  their own detailed debrief.
 
 Races are written to `logs/<id>.jsonl` and replay exactly. A server nobody is connected to forgets a race after an hour
 (`UNDERCUT_ROOM_TTL_S`), and a finished race after ten minutes (`UNDERCUT_FINISHED_ROOM_TTL_S`).

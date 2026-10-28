@@ -85,7 +85,7 @@ import { deltaText, fixed, headlines, meaningful, signed, verdict } from "./debr
 import type { DebriefDecision, DebriefOption, DebriefReport, DebriefSummary } from "./types";
 
 const summary = (over: Partial<DebriefSummary> = {}): DebriefSummary => ({ actual_points: 33, actual_position: 2.5, baseline_points: 14.5, baseline_points_se: 1, expected_points: 29.6,
-  expected_points_se: 1.6, expected_points_sd: 7, skill_points: 15.1, skill_points_se: 1.6, skill_places: 2.9, skill_places_se: 0.4, luck_points: 3.4, baseline_position: 7.2,
+  expected_points_se: 1.6, expected_points_sd: 7, skill_points: 15.1, skill_points_se: 1.6, skill_places: 2.9, skill_places_se: 0.4, luck_points: 3.4, score: 95, score_low: 90, score_high: 98, penalty_places: 0, penalty_points: 0, baseline_position: 7.2,
   expected_position: 4.3, drivers: [], biggest_miss: null, worst_contribution: null, ...over });
 const option = (over: Partial<DebriefOption> = {}): DebriefOption => ({ id: "x", name: "Box soft", taken: false, default: false, points: 9, delta_points: -2.5, delta_points_se: 1.1,
   places: -0.8, places_se: 0.3, verdict: "same", ...over });

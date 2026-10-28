@@ -18,7 +18,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from engine.bundle import load_bundle
-from scoring.debrief import DebriefError, run_debrief
+from concurrent.futures import ProcessPoolExecutor
+
+from scoring.debrief import DEFAULT_FUTURES, DebriefError, _lower_priority, run_debrief_all
+from scoring.live import LiveDebrief
 from server import stats
 from server.mods import mod_roots, pack_bundle, resolve_mod_file, scan_mods
 from server.paths import default_bundle, default_log_dir, resource_root
@@ -45,6 +48,7 @@ LOG_DIR = Path(os.environ.get("UNDERCUT_LOGS", default_log_dir()))
 TICK_LOOP_S = 0.1
 ROOM_TTL_S = float(os.environ.get("UNDERCUT_ROOM_TTL_S", 3600))      # a room nobody is connected to is forgotten after this long
 FINISHED_ROOM_TTL_S = float(os.environ.get("UNDERCUT_FINISHED_ROOM_TTL_S", 600))      # a finished race nobody is connected to: only the result and the debrief are left to see, so a shorter wait
+LIVE_DEBRIEF = os.environ.get("UNDERCUT_LIVE_DEBRIEF", "1") != "0"      # compute the debrief while the race runs (one decision at a time, as it is made)
 DEBRIEF_WORKERS = int(os.environ.get("UNDERCUT_DEBRIEF_WORKERS", max(1, min((os.cpu_count() or 2) - 2, 12))))      # workers run niced, so the live race keeps its clock
 
 
@@ -81,14 +85,25 @@ class NewRace(BaseModel):
     incident_multipliers: dict = Field(default_factory=dict)
 
 
-def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_ttl_s=ROOM_TTL_S, finished_room_ttl_s=FINISHED_ROOM_TTL_S, mods=None) -> FastAPI:
+def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_ttl_s=ROOM_TTL_S, finished_room_ttl_s=FINISHED_ROOM_TTL_S, mods=None,
+               live_debrief=LIVE_DEBRIEF) -> FastAPI:
     """`time_scale` speeds real time up for tests only."""
     app = FastAPI(title="Undercut")
     bundle = load_bundle(bundle_path)
     rooms: dict[str, Room] = {}
     sockets: dict[str, dict] = {}                    # room id -> {websocket: team id}
     tasks: dict[str, asyncio.Task] = {}
-    debriefs: dict[str, dict] = {}                   # room id -> {"status", "progress", "report" | "error"}
+    debriefs: dict[str, dict] = {}                   # room id -> {"status", "progress", "reports" (team -> report) | "error"}
+    pool: dict = {}                                  # the process pool of every debrief: made when the first race needs it
+
+    def get_pool():
+        if "p" not in pool and DEBRIEF_WORKERS > 0:
+            pool["p"] = ProcessPoolExecutor(max_workers=DEBRIEF_WORKERS, initializer=_lower_priority)
+        return pool.get("p")
+
+    def attach_live(room):
+        if live_debrief:
+            room.live = LiveDebrief(bundle, get_pool(), DEFAULT_FUTURES)
     busy: dict[str, float] = {}                      # room id -> share of wall time spent stepping the race and sending (smoothed)
     started = time.time()
 
@@ -102,6 +117,11 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
     async def stop_stats():
         if getattr(app.state, "stats_task", None):
             app.state.stats_task.cancel()
+        for room in rooms.values():
+            if room.live:
+                room.live.stop()
+        if "p" in pool:
+            pool["p"].shutdown(wait=False, cancel_futures=True)
 
     @app.get("/api/options")
     def options():
@@ -141,6 +161,7 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
                         multiplayer=True, host_name=req.name)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        attach_live(room)
         rooms[code], sockets[code] = room, {}
         tasks[code] = asyncio.create_task(run_room(code))
         return {**room.info(req.team), "team": req.team, "seat": room.humans[req.team]["token"]}
@@ -185,6 +206,7 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
                         pause_allowed=req.pause_allowed, log_dir=log_dir)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        attach_live(room)
         rooms[room_id], sockets[room_id] = room, {}
         tasks[room_id] = asyncio.create_task(run_room(room_id))
         return room.info()
@@ -195,37 +217,55 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
             raise HTTPException(404, "no such race")
         return rooms[room_id].info()
 
-    async def compute_debrief(room_id, futures):
+    async def compute_debrief(room_id, futures=DEFAULT_FUTURES):
+        """Make every human team's debrief: from the live computation if the race ran with one, else from the finished log."""
         room, job = rooms[room_id], debriefs[room_id]
 
         def progress(i, n):
             job["progress"] = [i, n]
         try:
-            report = await asyncio.to_thread(run_debrief, bundle, room.log, futures, DEBRIEF_WORKERS, progress)
-            job.update(status="done", report=report)
+            reports = None
+            if room.live is not None and room.live.ok:
+                try:
+                    reports = await asyncio.to_thread(room.live.reports)
+                except DebriefError:
+                    reports = None                                   # the live run failed: the log still has everything
+            if reports is None:
+                reports = await asyncio.to_thread(run_debrief_all, bundle, room.log, futures, DEBRIEF_WORKERS, progress, None, get_pool())
+            job.update(status="done", reports=reports)
             if log_dir:
                 Path(log_dir).mkdir(parents=True, exist_ok=True)
-                (Path(log_dir) / f"{room_id}.debrief.json").write_text(json.dumps(report, default=float))
+                (Path(log_dir) / f"{room_id}.debrief.json").write_text(json.dumps(next(iter(reports.values())) if len(reports) == 1 else reports, default=float))
         except DebriefError as e:
             job.update(status="error", error=str(e))
         except Exception as e:  # noqa: BLE001  report any failure to the client instead of losing it in the task
             job.update(status="error", error=f"{type(e).__name__}: {e}")
 
+    def ensure_debrief(room_id, futures=DEFAULT_FUTURES):
+        if room_id not in debriefs:
+            debriefs[room_id] = {"status": "running", "progress": [0, 0]}
+            asyncio.create_task(compute_debrief(room_id, futures))
+        return debriefs[room_id]
+
+    def debrief_state(room_id):
+        """The job, with the live progress filled in while it runs."""
+        room, job = rooms[room_id], debriefs[room_id]
+        if job["status"] == "running" and room.live is not None and room.live.ok:
+            job["progress"] = room.live.progress()
+        return job
+
     @app.post("/api/races/{room_id}/debrief")
-    async def start_debrief(room_id: str, futures: int = 24):
+    async def start_debrief(room_id: str, futures: int = DEFAULT_FUTURES):
         room = rooms.get(room_id)
         if room is None:
             raise HTTPException(404, "no such race")
         if room.multiplayer:
-            raise HTTPException(409, "there is no debrief for multiplayer races")
+            raise HTTPException(409, "a multiplayer race has one debrief per player: ask the game for yours")
         if room.race.session != "FINISHED":                # counterfactuals reveal hidden pace and tyre data
             raise HTTPException(409, "the debrief is only available once the race has finished")
         if not 2 <= futures <= 200:
             raise HTTPException(422, "futures must be between 2 and 200")
-        if room_id not in debriefs:
-            debriefs[room_id] = {"status": "running", "progress": [0, 0]}
-            asyncio.create_task(compute_debrief(room_id, futures))
-        return {"status": debriefs[room_id]["status"]}
+        return {"status": ensure_debrief(room_id, futures)["status"]}
 
     @app.get("/api/races/{room_id}/debrief")
     def get_debrief(room_id: str):
@@ -233,7 +273,45 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
             raise HTTPException(404, "no such race")
         if rooms[room_id].race.session != "FINISHED":
             raise HTTPException(409, "the debrief is only available once the race has finished")
-        return debriefs.get(room_id, {"status": "not started"})
+        if room_id not in debriefs:
+            return {"status": "not started"}
+        job = debrief_state(room_id)
+        if job["status"] == "done":
+            return {"status": "done", "report": next(iter(job["reports"].values()))}
+        return {k: v for k, v in job.items() if k != "reports"}
+
+    def finished_game(code):
+        room = game(code)
+        if room.race.session != "FINISHED":
+            raise HTTPException(409, "the results come once the race has finished")
+        return room
+
+    @app.get("/api/games/{code}/ranking")
+    def game_ranking(code: str):
+        """The strategists of a finished multiplayer game, best first: each one's score out of 100, from their own calls."""
+        room = finished_game(code)
+        job = debrief_state(room.id) if room.id in debriefs else ensure_debrief(room.id)
+        if job["status"] != "done":
+            return {k: v for k, v in job.items() if k != "reports"}
+        rows = []
+        for team, r in job["reports"].items():
+            s = r["summary"]
+            rows.append({"team": team, "name": room.humans[team]["name"], "score": round(s["score"], 1), "score_low": round(s["score_low"], 1),
+                         "score_high": round(s["score_high"], 1), "skill_places": s["skill_places"] - s["penalty_places"], "skill_points": s["skill_points"] - s["penalty_points"],
+                         "actual_position": s["actual_position"], "actual_points": s["actual_points"], "cars": r["cars"]})
+        rows.sort(key=lambda x: (-x["score"], x["actual_position"], x["team"]))
+        return {"status": "done", "ranking": rows, "winner": rows[0]["team"] if rows else None}
+
+    @app.get("/api/games/{code}/debrief")
+    def game_debrief(code: str, team: str, seat: str = ""):
+        """A player's own detailed debrief, for the seat they hold."""
+        room = finished_game(code)
+        if not room.seat_ok(team, seat):
+            raise HTTPException(403, "this seat is not yours")
+        job = debrief_state(room.id) if room.id in debriefs else ensure_debrief(room.id)
+        if job["status"] != "done":
+            return {k: v for k, v in job.items() if k != "reports"}
+        return {"status": "done", "report": job["reports"][team]}
 
     async def broadcast(room_id, events, force_state):
         room = rooms[room_id]
@@ -268,11 +346,15 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
                 empty_since = now
             if finished_since is None and room.race.session == "FINISHED":
                 finished_since = now
+                if room.live is not None and room.live.ok:
+                    ensure_debrief(room_id)                  # the last branches are the only ones left: the result is ready when someone asks
             # nobody has been connected for a while: free the race's memory. A finished race is only waiting to be looked at, so it goes
             # sooner, counted from the later of the finish and the last person leaving (a dropped player has a few minutes to come back).
             if empty_since is not None and sockets[room_id] == {}:
                 waited = now - (empty_since if finished_since is None else max(empty_since, finished_since))
                 if waited > (room_ttl_s if finished_since is None else min(finished_room_ttl_s, room_ttl_s)):
+                    if room.live is not None:
+                        room.live.stop()
                     rooms.pop(room_id, None)
                     sockets.pop(room_id, None)
                     tasks.pop(room_id, None)

@@ -171,10 +171,10 @@ export function RaceScreen({ race, onLeave, layout = "plain", look = "wall", set
         </div>
       )}
       {finished && debrief && (
-        <Debrief roomId={info.id} names={Object.fromEntries(view.cars.map((c) => [c.id, names.driver(c.id)]))} onClose={() => setDebrief(false)}
+        <Debrief roomId={info.id} names={Object.fromEntries(view.cars.map((c) => [c.id, names.driver(c.id)]))} onClose={() => setDebrief(false)} player={info.multiplayer && race.seat ? { team: race.team, seat: race.seat } : undefined}
           onShowLap={(lap, car) => { setFocusLap((f) => ({ lap, car, n: (f?.n ?? 0) + 1 })); setLook("strategy"); }} />
       )}
-      {finished && !debrief && <Results view={view} info={info} laps={race.state.laps} onDebrief={info.multiplayer ? undefined : () => setDebrief(true)} onLeave={onLeave} />}
+      {finished && !debrief && <Results view={view} info={info} laps={race.state.laps} onDebrief={() => setDebrief(true)} onLeave={onLeave} team={race.team} />}
     </div>
     </GlossaryScope>
   );

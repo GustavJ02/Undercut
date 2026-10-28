@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from engine.bundle import load_bundle
 from engine.eventlog import EventLog
-from scoring.debrief import DEFAULT_FUTURES, DebriefError, format_report, run_debrief
+from scoring.debrief import DEFAULT_FUTURES, DebriefError, format_report, run_debrief_all
 
 DEFAULT_BUNDLE = Path(__file__).resolve().parent.parent / "params" / "bundles" / "1.0.0.json"
 
@@ -26,16 +26,21 @@ def main(argv=None):
     ap.add_argument("--bundle", type=Path, default=DEFAULT_BUNDLE)
     ap.add_argument("--futures", type=int, default=DEFAULT_FUTURES)
     ap.add_argument("--workers", type=int, default=max(1, min((os.cpu_count() or 2) - 2, 12)), help="processes (default: all cores but two, at most 12)")
-    ap.add_argument("--json", type=Path, help="also write the full report here")
+    ap.add_argument("--team", help="debrief only this team (a multiplayer race has one debrief per human team)")
+    ap.add_argument("--json", type=Path, help="also write the full report here (a team's report, or team -> report for several)")
     a = ap.parse_args(argv)
     try:
-        report = run_debrief(load_bundle(a.bundle), EventLog.read(a.log), a.futures, a.workers,
-                             progress=lambda i, n: print(f"  decision {i}/{n} done", file=sys.stderr))
+        reports = run_debrief_all(load_bundle(a.bundle), EventLog.read(a.log), a.futures, a.workers,
+                                  progress=lambda i, n: print(f"  decision {i}/{n} done", file=sys.stderr),
+                                  teams=[a.team] if a.team else None)
     except DebriefError as e:
         raise SystemExit(f"cannot debrief: {e}") from e
-    print(format_report(report))
+    for report in reports.values():
+        print(format_report(report))
+        print()
     if a.json:
-        a.json.write_text(json.dumps(report, indent=1, default=float))
+        one = next(iter(reports.values())) if len(reports) == 1 else reports
+        a.json.write_text(json.dumps(one, indent=1, default=float))
 
 
 if __name__ == "__main__":

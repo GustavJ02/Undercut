@@ -10,8 +10,10 @@ import threading
 import time
 from pathlib import Path
 
+from engine.actions import SeatNote
 from engine.eventlog import EventLog
 from engine.race import ENGINE_VERSION, header
+from engine.runner import adopt_cars
 from engine.rivals import defaults as D
 from engine.rivals.policy import RulePolicy
 from engine.setup import build_race, start_race
@@ -58,6 +60,7 @@ class Room:
         self.vote = None                      # a multiplayer speed increase waiting for everyone: {by, to, answers: team -> bool}
         self.vote_note = {"id": 0, "text": ""}     # the last thing worth telling the players about the speed, shown once per id
         self.pending = []
+        self.live = None                      # a scoring.live.LiveDebrief, set by the app: the debrief is computed while the race runs
         self.lock = threading.Lock()
         self.log = EventLog(header(bundle, self.setup, self.race, None if multiplayer else human_team, self.human_cars))
         self.log_dir = Path(log_dir) if log_dir else None
@@ -113,6 +116,7 @@ class Room:
                 if h["auto"]:
                     h["auto"] = False
                     self.policies[team].exclude |= h["cars"]
+                    self.pending.append(SeatNote(team, "back"))        # logged, so a replay gives the cars back at the same tick
                     self._say(f"{h['name']} is back and has {self._team_name(team)} again")
 
     def _watch_seats(self, wall_seconds):
@@ -123,13 +127,10 @@ class Room:
                 continue
             h["away_s"] += wall_seconds
             if h["away_s"] >= AWAY_S:
-                view = project(self.race, team)
-                rows = {c["id"]: c for c in view["cars"]}
-                for cid in h["cars"]:
-                    if self.race.cars[cid].status == "RUNNING":
-                        self.policies[team].adopt_car(cid, rows[cid], self.race.total_laps - rows[cid]["lap"], self.race.tick)
-                h["auto"] = True
-                self.policies[team].exclude -= h["cars"]
+                with self.lock:
+                    adopt_cars(self.race, self.policies, sorted(h["cars"]))       # the same planning the replay does
+                    h["auto"] = True
+                    self.pending.append(SeatNote(team, "auto"))         # logged, so a replay hands the cars over at the same tick
                 self._say(f"{h['name']} disconnected; the AI is running {self._team_name(team)}")
                 self._refresh_vote()
 
@@ -187,7 +188,11 @@ class Room:
                 raise ProtocolError(f"unknown message type {kind!r}")
 
     def _act_while_paused(self, act):
+        if self.live:
+            self.live.take(self)
         ev = apply_now(self.race, [act])
+        if self.live:
+            self.live.after_tick(self, ev)
         return [e for e in ev if e["type"] != "radio"] + self.radio.observe(ev)
 
     def _radio_message(self, team_id, msg):
@@ -319,6 +324,8 @@ class Room:
         start_race(self.race, self.start_tyres)
         self.outbox.extend(self.race.events)
         self.paused = False
+        if self.live:
+            self.live.begin(self)
 
     # -- clock -----------------------------------------------------------------------------------------------
     def advance(self, wall_seconds):
@@ -340,10 +347,14 @@ class Room:
     def _one_tick(self):
         race, acts = self.race, self.pending
         self.pending = []
+        if self.live and any(not isinstance(a, SeatNote) for a in acts):
+            self.live.take(self)              # the race as it stands before these calls are applied: what their alternatives start from
         if race.tick % self._every == 0:
             for tid, pol in self.policies.items():
                 acts += pol.decide(project(race, tid), {})
         ev = tick(race, acts)
+        if self.live:
+            self.live.after_tick(self, ev)
         self._record_laps(ev)
         ev = [e for e in ev if e["type"] != "radio"] + self.radio.observe(ev)       # the radio turns engine chatter into lines
         if race.session == "FINISHED":

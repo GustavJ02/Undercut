@@ -3,10 +3,11 @@ import { gap, lapTime } from "../format";
 import { useNames } from "../hooks";
 import { resultRows } from "../strategy/results";
 import type { LapTable, RaceInfo, View } from "../types";
+import { Ranking } from "./Ranking";
 import { circuitName } from "./setup/circuits";
 
 /** The race result as a screen of its own: classification with gap, best lap and a bar of each car's tyre stints. */
-export function Results({ view, info, laps, onDebrief, onLeave }: { view: View; info: RaceInfo; laps: LapTable; onDebrief?: () => void; onLeave: () => void }) {
+export function Results({ view, info, laps, onDebrief, onLeave, team }: { view: View; info: RaceInfo; laps: LapTable; onDebrief?: () => void; onLeave: () => void; team?: string }) {
   const names = useNames();
   const rows = resultRows(view.cars, laps);
   return (
@@ -17,6 +18,7 @@ export function Results({ view, info, laps, onDebrief, onLeave }: { view: View; 
         {onDebrief && <button className="primary" onClick={onDebrief}>Debrief</button>}
         <button onClick={onLeave}>New race</button>
       </div>
+      {info.multiplayer && team && onDebrief && <Ranking code={info.id} team={team} onDetail={onDebrief} />}
       <table className="results">
         <thead>
           <tr>

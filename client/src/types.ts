@@ -232,6 +232,13 @@ export interface DebriefSummary {
   skill_places: number;
   skill_places_se: number;
   luck_points: number; // actual - V_K
+  /** The strategist score: 0 to 100, 50 = as good as the AI would have been with the same cars; low and high are one standard error of the skill. */
+  score: number;
+  score_low: number;
+  score_high: number;
+  /** Places and points the two-compound penalty cost, counted against the score (not stopping is no call, so skill alone would miss it). */
+  penalty_places: number;
+  penalty_points: number;
   baseline_position: number;
   expected_position: number;
   drivers: DebriefDriver[];
@@ -247,6 +254,26 @@ export interface DebriefReport {
   penalties: { car: string; reason: string; effect: string }[];
   summary: DebriefSummary;
 }
+
+/** One strategist of a finished multiplayer game (server /api/games/<code>/ranking). */
+export interface RankedPlayer {
+  team: string;
+  name: string;
+  score: number;
+  score_low: number;
+  score_high: number;
+  skill_places: number;
+  skill_points: number;
+  actual_position: number;
+  actual_points: number;
+  cars: string[];
+}
+
+export type RankingStatus =
+  | { status: "not started" }
+  | { status: "running"; progress: [number, number] }
+  | { status: "error"; error: string }
+  | { status: "done"; ranking: RankedPlayer[]; winner: string | null };
 
 export type DebriefStatus =
   | { status: "not started" }

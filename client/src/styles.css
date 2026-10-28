@@ -306,3 +306,7 @@ footer.legal { color: var(--muted); font-size: var(--fs-s); display: grid; gap: 
 .gloss { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; } .gloss:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .gloss-tip { position: fixed; z-index: 90; width: 272px; padding: 8px 10px; border-radius: 4px; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: var(--fs-s); font-weight: 400; letter-spacing: 0; text-transform: none; line-height: 1.35; pointer-events: none; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
 .how-list { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; }
+/* the strategist ranking of a multiplayer game, and the score on the debrief */
+.ranking { display: grid; gap: 6px; } .ranking h3 { margin: 0; font-size: var(--fs-l); } .ranking .winner { margin: 0; font-size: var(--fs-m); }
+.ranking-table td.key { position: relative; min-width: 140px; } .scorebar { position: absolute; left: 0; top: 4px; bottom: 4px; background: color-mix(in srgb, var(--accent) 28%, transparent); z-index: 0; } .ranking-table td.key { z-index: 1; }
+.score { margin: 0; font-size: var(--fs-l); } .score strong { font-size: var(--fs-xl); }

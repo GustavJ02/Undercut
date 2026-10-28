@@ -73,6 +73,7 @@ export function useRace(roomId: string, team: string, seat?: string) {
     connected,
     denied,
     team,
+    seat,
     setStartTyres: (car: string, compound: Compound) => send({ type: "action", kind: "SetStartTyres", car, compound }),
     callBox: (car: string, compound: Compound) => send({ type: "action", kind: "CallBox", car, compound }),
     swapPositions: (car: string, withCar: string, anchor: "asap" | "before" | "after", turn?: number) =>

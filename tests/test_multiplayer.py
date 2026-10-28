@@ -89,6 +89,36 @@ def test_the_other_players_are_told_when_someone_drops_and_when_the_ai_takes_ove
     assert room.vote_note["text"] == f"Sam is back and has {room._team_name('T1')} again"
 
 
+def test_a_multiplayer_race_with_two_players_and_an_autopilot_stretch_replays_exactly():
+    """The replay is what the debrief stands on: it must hand a seat to the AI and give it back at the ticks the room did."""
+    from engine.runner import Runner
+    b = make_bundle()
+    b["circuits"]["Test"]["total_laps"] = 14
+    room = Room("ABCDE", b, {"seed": 3, "circuit": "Test"}, human_team="T0", multiplayer=True)
+    room.claim("T1", "Sam")
+    room.handle("T0", {"type": "control", "op": "speed", "value": 10})
+    start(room)
+    room.set_connected("T0", True)
+    room.set_connected("T1", True)
+    room.advance(8.0)
+    room.handle("T1", {"type": "action", "kind": "CallBox", "car": "T1A", "compound": "MEDIUM"})
+    room.advance(4.0)
+    room.set_connected("T1", False)
+    room.advance(AWAY_S + 1.0)                                          # T1 left in the middle of the race: the AI takes the seat
+    assert room.humans["T1"]["auto"]
+    room.handle("T0", {"type": "action", "kind": "CallBox", "car": "T0A", "compound": "HARD"})
+    room.advance(20.0)
+    room.set_connected("T1", True)                                       # and gives it back
+    room.handle("T1", {"type": "action", "kind": "CallBox", "car": "T1B", "compound": "SOFT"})
+    while room.race.session != "FINISHED":
+        room.advance(1.0)
+    kinds = [(e["payload"].get("kind"), e["payload"].get("state")) for e in room.log.events if e["type"] == "action"]
+    assert ("SeatNote", "auto") in kinds and ("SeatNote", "back") in kinds
+    runner = Runner.from_log(b, room.log)
+    runner.run_to_end()
+    assert runner.race.events == room.log.events
+
+
 @pytest.fixture()
 def client(tmp_path):
     b = make_bundle()
