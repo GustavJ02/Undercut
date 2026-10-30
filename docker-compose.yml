@@ -13,6 +13,9 @@ services:
     environment:
       UNDERCUT_MAX_ROOMS: "20"           # games at the same time
       UNDERCUT_DEBRIEF_WORKERS: "2"      # cores a debrief may use, so a live race keeps its clock
+      # Play the debrief simulations on a Google Cloud Run service instead of on these cores (docs/cloud-run-worker.md). Set both, or neither:
+      # UNDERCUT_WORKER_URL: "https://undercut-worker-xxxxx.a.run.app"
+      # UNDERCUT_WORKER_SECRET: "the same long random secret as on the service"
     cpus: 3.0                            # at most this many cores for the whole container
     mem_limit: 2g
 

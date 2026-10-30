@@ -44,6 +44,11 @@ The game is then on port 8000 of that machine. Race logs and extra content packs
 games at once or the CPU limit. `docker compose down` stops it. `./monitor.sh` opens a terminal dashboard inside the container: singleplayer and
 multiplayer games running, browsers connected, CPU, memory, network and a row per game (`q` quits; `./monitor.sh --once` prints one snapshot). Put it behind your own firewall or port forward; there is no login.
 
+**Debrief simulations on Google Cloud Run** (optional): the Pi can leave the heavy simulations of the debrief to a Cloud Run service that scales to
+zero. Set `UNDERCUT_WORKER_URL` and `UNDERCUT_WORKER_SECRET` (see the commented lines in `docker-compose.yml`) to send them there; leave them unset
+and everything runs on the machine as before. `Dockerfile.worker` builds the service; `docs/cloud-run-worker.md` has the console steps, the free-tier
+arithmetic and the security notes.
+
 **Development mode** (the page reloads when you edit the client): run `venv/bin/uvicorn server.app:app --port 8000` in one
 terminal and `cd client && npm run dev` in another, then open the address Vite prints.
 

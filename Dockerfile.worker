@@ -1,0 +1,20 @@
+# Undercut debrief worker for Google Cloud Run: plays the simulated futures of a debrief for the game server (see docs/cloud-run-worker.md).
+# Build it from the repository root: docker build -f Dockerfile.worker -t undercut-worker .   (on an ARM machine add --platform linux/amd64 for Cloud Run)
+FROM python:3.13-slim
+# PYTHONHASHSEED is fixed so that every instance iterates sets in the same order, whatever the server it answers.
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+# What a pickled race needs to be loaded: the engine, the debrief, and the one server module the engine imports. No bundle, circuits or client.
+COPY engine/ engine/
+COPY scoring/ scoring/
+COPY server/__init__.py server/visibility.py server/
+COPY worker/ worker/
+RUN useradd --system --create-home undercut
+USER undercut
+# Cloud Run sets PORT; one process serves one batch at a time (set "Maximum concurrent requests per instance" to 1 and give it 1 vCPU).
+# UNDERCUT_WORKER_SECRET comes from the service's environment, never from the image.
+ENV PORT=8080
+EXPOSE 8080
+CMD ["sh", "-c", "exec uvicorn worker.app:create_app_from_env --factory --host 0.0.0.0 --port ${PORT} --log-level warning"]

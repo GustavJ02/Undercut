@@ -22,6 +22,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 from scoring.debrief import DEFAULT_FUTURES, DebriefError, _lower_priority, run_debrief_all
 from scoring.live import LiveDebrief
+from scoring.remote import executor_from_env
 from server import stats
 from server.mods import mod_roots, pack_bundle, resolve_mod_file, scan_mods
 from server.paths import default_bundle, default_log_dir, resource_root
@@ -94,7 +95,10 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
     sockets: dict[str, dict] = {}                    # room id -> {websocket: team id}
     tasks: dict[str, asyncio.Task] = {}
     debriefs: dict[str, dict] = {}                   # room id -> {"status", "progress", "reports" (team -> report) | "error"}
-    pool: dict = {}                                  # the process pool of every debrief: made when the first race needs it
+    pool: dict = {}                                  # the executor of every debrief: the local process pool, made when the first race needs it, or the remote worker
+    remote = executor_from_env()                     # UNDERCUT_WORKER_URL: the branches are played on a Cloud Run service instead of here
+    if remote:
+        pool["p"] = remote
 
     def get_pool():
         if "p" not in pool and DEBRIEF_WORKERS > 0:
@@ -111,7 +115,7 @@ def create_app(bundle_path=BUNDLE_PATH, log_dir=LOG_DIR, time_scale=1.0, room_tt
     async def write_stats():
         if stats.STATS_PATH:
             app.state.stats_task = asyncio.create_task(stats.write_loop(
-                stats.STATS_PATH, lambda: stats.snapshot(rooms, sockets, debriefs, busy, started, MAX_ROOMS, DEBRIEF_WORKERS)))
+                stats.STATS_PATH, lambda: stats.snapshot(rooms, sockets, debriefs, busy, started, MAX_ROOMS, DEBRIEF_WORKERS, remote is not None)))
 
     @app.on_event("shutdown")
     async def stop_stats():

@@ -153,7 +153,7 @@ def lines(s: Sampler, stats, width=100) -> list[str]:
     live = lambda rs: sum(1 for r in rs if r["session"] not in ("GRID", "FINISHED"))
     out.append(f"Server up {duration(time.time() - stats['started'])}   Games {len(rooms)} of {stats['max_rooms']}   "
                f"Browsers connected {sum(r['clients'] for r in rooms)}   Debriefs running {sum(1 for r in rooms if r['debrief'] == 'running')} "
-               f"(up to {stats['debrief_workers']} cores)")
+               f"({'on the remote worker' if stats.get('debrief_remote') else 'up to ' + str(stats['debrief_workers']) + ' cores'})")
     out.append(f"Singleplayer {len(solo)} ({live(solo)} racing)    Multiplayer {len(multi)} ({live(multi)} racing, "
                f"{sum(r['players_connected'] for r in multi)} players connected)")
     out.append("")

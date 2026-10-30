@@ -14,7 +14,7 @@ STATS_PATH = os.environ.get("UNDERCUT_STATS")
 WRITE_EVERY_S = 1.0
 
 
-def snapshot(rooms: dict, sockets: dict, debriefs: dict, busy: dict, started: float, max_rooms: int, debrief_workers: int) -> dict:
+def snapshot(rooms: dict, sockets: dict, debriefs: dict, busy: dict, started: float, max_rooms: int, debrief_workers: int, debrief_remote: bool = False) -> dict:
     """The counts and one row per room. `busy` is each room's share of wall time spent stepping and sending (0..1)."""
     now = time.time()
     rows = []
@@ -28,7 +28,7 @@ def snapshot(rooms: dict, sockets: dict, debriefs: dict, busy: dict, started: fl
             "clients": len(sockets.get(rid, {})), "players": len(players), "players_connected": sum(1 for p in players if p["connected"]),
             "ai_cover": sum(1 for p in players if p["auto"]), "age_s": round(now - room.created, 1), "busy": round(busy.get(rid, 0.0), 4),
             "debrief": debriefs.get(rid, {}).get("status")})
-    return {"time": now, "started": started, "max_rooms": max_rooms, "debrief_workers": debrief_workers, "rooms": rows}
+    return {"time": now, "started": started, "max_rooms": max_rooms, "debrief_workers": debrief_workers, "debrief_remote": debrief_remote, "rooms": rows}
 
 
 async def write_loop(path: str, make) -> None:
