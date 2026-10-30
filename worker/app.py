@@ -19,8 +19,8 @@ from scoring.remote import CODE_HEADER, MIN_SECRET_LENGTH, SIGNATURE_HEADER, che
 def create_app(secret: str) -> FastAPI:
     app = FastAPI(title="Undercut debrief worker")
 
-    @app.get("/healthz")
-    def healthz():
+    @app.get("/health")
+    def health():
         return {"ok": True, "code": code_version()}
 
     @app.post("/batch")

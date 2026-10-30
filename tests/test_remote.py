@@ -41,7 +41,7 @@ def worker_url():
         for _ in range(100):
             try:
                 conn = http.client.HTTPConnection("127.0.0.1", port, timeout=1)
-                conn.request("GET", "/healthz")
+                conn.request("GET", "/health")
                 if conn.getresponse().status == 200:
                     break
             except OSError:
